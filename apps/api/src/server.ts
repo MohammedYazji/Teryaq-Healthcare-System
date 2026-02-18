@@ -1,4 +1,4 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import { config } from "./config/env";
 import { connectDB } from "./config/database";
@@ -19,12 +19,12 @@ const bootstrap = async () => {
     app.use(cors());
 
     // ROUTES
-    app.get('/', (req, res) => {
+    app.get('/', (req: Request, res: Response) => {
         res.send('Teryaq is here!');
     });
 
     // HANDLE UNHANDLED ROUTES
-    app.all('*', (req, res, next) => {
+    app.use((req: Request, res: Response, next: NextFunction) => {
         next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
     });
 
