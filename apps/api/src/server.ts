@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import { config } from "./config/env";
 import { connectDB } from "./config/database";
+import { globalErrorHandler } from "./core/middlewares/errorMiddleware";
+import { AppError } from "./core/errors/AppError";
 
 const bootstrap = async () => {
     // SETUP EXPRESS
@@ -20,6 +22,14 @@ const bootstrap = async () => {
     app.get('/', (req, res) => {
         res.send('Teryaq is here!');
     });
+
+    // HANDLE UNHANDLED ROUTES
+    app.all('*', (req, res, next) => {
+        next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+    });
+
+    // GLOBAL ERROR HANDLER
+    app.use(globalErrorHandler);
 
     // START SERVER
     app.listen(config.PORT, () => {
