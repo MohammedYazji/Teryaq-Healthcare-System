@@ -27,4 +27,4 @@ const PatientSchema: Schema<IPatientDocument> = new Schema({
     }
 }, { timestamps: true });
 
-export const PatientModel: Model<IPatientDocument> = mongoose.model<IPatientDocument>('PatientProfile', PatientSchema);
+export const PatientProfileModel: Model<IPatientDocument> = mongoose.model<IPatientDocument>('PatientProfile', PatientSchema);
