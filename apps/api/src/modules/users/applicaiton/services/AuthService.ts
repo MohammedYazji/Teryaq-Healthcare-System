@@ -66,6 +66,36 @@ export class AuthService {
         throw new AppError(error.message || "Something went wrong", 400);
        }
     }
+
+    // LOGIN 
+    async login(userData: any) {
+        const { email, password} = userData;
+
+        // ENSURE EMAIL AND PASSWORD ARE PROVIDED
+        if (!email || !password) {
+            throw new AppError('Please provide email and password', 400);
+        }
+
+        // GET THE USER WITH THE PROVIDED EMAIL AND SELECT THE PASSWORD TO BE SHOWN CAUSE IT'S HIDDEN BY DEFAULT
+        const user = await UserModel.findOne({ email }).select('+password');
+
+        // CHECK IF USER EXISTS AND PASSWORD MATCHES
+        if (!user || !(await user.comparePassword(password))) {
+            throw new AppError('Invalid email or password', 401);
+        }
+
+        // GENERATE TOKEN
+        const token = this.generateToken(user._id.toString());
+
+        // SEND DATA WITHOUT PASSWORD
+        (user as any).password = undefined;
+
+        return {
+            status: 'success',
+            token,
+            data: {user}
+        };
+    }
 }
 
 
