@@ -4,6 +4,7 @@ import { config } from "./config/env";
 import { connectDB } from "./config/database";
 import { globalErrorHandler } from "./core/middlewares/errorMiddleware";
 import { AppError } from "./core/errors/AppError";
+import { authRoutes } from "./modules/users/presentation/routes/authRoutes";
 
 const bootstrap = async () => {
     // SETUP EXPRESS
@@ -19,9 +20,7 @@ const bootstrap = async () => {
     app.use(cors());
 
     // ROUTES
-    app.get('/', (req: Request, res: Response) => {
-        res.send('Teryaq is here!');
-    });
+    app.use('/api/v1/auth', authRoutes);
 
     // HANDLE UNHANDLED ROUTES
     app.use((req: Request, res: Response, next: NextFunction) => {
