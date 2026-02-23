@@ -20,24 +20,30 @@ export class AuthService {
     }
 
     // SIGNUP
-    async signup(userData: any){
+    async signup(paylod: any){
         // TO ENSURE IMPLEMENT ALL STEPS OR CANCEL THE TRANSACTION
         // WE NEED TO START A TRANSACTION
         const session = await mongoose.startSession();
        session.startTransaction(); 
 
        try {
+
+        // SPLIT USER DATA INTO MAIN USER AND PROFILE DATA
+        const {doctorInfo, patientInfo, ...userData} = paylod;
+
         // MAKE THE MAIN USER
         const [newUser] = await UserModel.create([userData], { session });
 
         // CREATE PROFILE BASED ON USER ROLE
         let profileId;
         if(newUser.role === 'doctor'){
-            const [doctorProfile] = await DoctorProfileModel.create([{ userId: newUser._id.toString() }], { session });
+            if (!doctorInfo) throw new AppError("doctor information is required", 400);
+            const [doctorProfile] = await DoctorProfileModel.create([{ userId: newUser._id.toString(), ...doctorInfo }], { session });
             profileId = doctorProfile._id;
             newUser.doctorProfileId = profileId.toString();
         } else if(newUser.role === 'patient'){
-            const [patientProfile] = await PatientProfileModel.create([{ userId: newUser._id.toString() }], { session });
+            if (!patientInfo) throw new AppError("patient information is required", 400);
+            const [patientProfile] = await PatientProfileModel.create([{ userId: newUser._id.toString(), ...(patientInfo || {}) }], { session });
             profileId = patientProfile._id;
             newUser.patientProfileId = profileId.toString();
         }
