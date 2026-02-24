@@ -102,6 +102,38 @@ export class AuthService {
             data: {user}
         };
     }
+
+    // UPDATE PASSWORD
+    async updatePassword(userId: string, data: any) {
+        const {currentPassword ,newPassword, newPasswordConfirm} = data;
+
+        // GET THE USER AND SELECT THE PASSWORD TO BE SHOWN CAUSE IT'S HIDDEN BY DEFAULT
+        // CHECK IF THE CURRENT PASSWORD
+        const user = await UserModel.findById(userId).select('+password');
+        if(!user || !(await(user.comparePassword(currentPassword)))){
+            throw new AppError('Invalid current password', 401);
+        }
+
+        // UPDATE THE PASSWORD & SAVE IT
+        if(newPassword !== newPasswordConfirm){
+            throw new AppError('Passwords do not match', 400);
+        }
+        user.password = newPassword;
+        await user.save();
+
+        // GENERATE A NEW TOKEN
+        const token = this.generateToken(user._id.toString());
+
+        
+        // SEND DATA WITHOUT PASSWORD
+        (user as any).password = undefined;
+
+        return {
+            status: 'success',
+            token,
+            data: {user}
+        };       
+    }
 }
 
 
