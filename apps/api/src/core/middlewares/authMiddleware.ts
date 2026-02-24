@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { promisify } from "util";
 import { config } from "../../config/env";
 import { AppError } from "../errors/AppError";
 import { catchAsync } from "../utils/catchAsync";
 import { UserModel } from "../../modules/users/infrastructure/models/UserModel ";
 
+// PROTECT ROUTES
 export const protect = catchAsync(async(req: any, res: Response, next: NextFunction) => {
     // ENSURE THE TOKEN EXISTS
     let token;
@@ -32,3 +32,13 @@ export const protect = catchAsync(async(req: any, res: Response, next: NextFunct
     next();
 
 })
+
+// GRANT ACCESS TO SPECIFIC ROLES
+export const restrictTo = (...roles: string[]) => {
+    return (req: any, res: Response, next: NextFunction) => {
+        if(!roles.includes(req.user.role)) {
+            return next(new AppError('You do not have permission to perform this action', 403));
+        }
+        next();
+    }
+}
