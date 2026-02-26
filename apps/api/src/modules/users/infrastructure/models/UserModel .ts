@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Schema, Document, Model, Query } from "mongoose";
 import { IUser } from "../../domain/entities/IUser";
 import bcrypt from "bcryptjs";
 import { AppError } from "../../../../core/errors/AppError";
@@ -8,6 +8,7 @@ import crypto from "crypto";
 // DOCUMENT IS THE MONGODB DOCUMENT (TO MAKE MONGODB OPERATIONS)
 // IUSERDOCUMENT IS THE COMBINATION OF IUSER AND DOCUMENT (TO MAKE TYPE CHECKING AND MONGODB OPERATIONS)
 export interface IUserDocument extends IUser, Document {
+  id: string;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -118,3 +119,12 @@ export const UserModel: Model<IUserDocument> = mongoose.model<IUserDocument>(
   "User",
   UserSchema,
 );
+
+// MIDDLEWARE TO IGNORE ALL INACTIVE USERS
+// JUST RETURN THE ACTIVE USER WHEN USE (FIND, FindOne)
+UserSchema.pre(/^find/, function (this: Query<any, any>) {
+  // this refer to the current query
+  (this as any).find({
+    status: { $ne: "suspended" },
+  });
+});
