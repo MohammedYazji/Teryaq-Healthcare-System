@@ -13,6 +13,12 @@ export interface IUser {
     gender?: UserGender;
     photo?: string;
     status: UserStatus;
+    passwordResetToken?: string;
+    passwordResetExpires?: Date;
+
+    // METHODS
+    generatePasswordResetToken(): string;
+    comparePassword(password: string): Promise<boolean>;
 
     // EACH USER MUST BE ONE OF THESE
     doctorProfileId?: string;
