@@ -11,6 +11,11 @@ export const config = {
     NODE_ENV: process.env.NODE_ENV || 'development',
     JWT_SECRET: process.env.JWT_SECRET || '',
     JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '1d',
+    EMAIL_HOST: process.env.EMAIL_HOST || '',
+    EMAIL_PORT: process.env.EMAIL_PORT || '',
+    EMAIL_USERNAME: process.env.EMAIL_USERNAME || '',
+    EMAIL_PASSWORD: process.env.EMAIL_PASSWORD || '',
+    EMAIL_FROM: process.env.EMAIL_FROM || '',
 }
 
 if (!config.MONGO_URI) {
