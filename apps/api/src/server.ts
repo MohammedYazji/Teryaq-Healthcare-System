@@ -5,34 +5,34 @@ import { connectDB } from "./config/database";
 import { globalErrorHandler } from "./core/middlewares/errorMiddleware";
 import { AppError } from "./core/errors/AppError";
 import { authRoutes } from "./modules/users/presentation/routes/authRoutes";
+import { userRoutes } from "./modules/users/presentation/routes/userRoutes";
 
 const bootstrap = async () => {
-    // SETUP EXPRESS
-    const app = express();
+  // SETUP EXPRESS
+  const app = express();
 
+  // CONNECT TO MONGODB
+  await connectDB();
 
-    // CONNECT TO MONGODB
-    await connectDB();
+  // USE MIDDLEWARES
+  app.use(express.json());
+  app.use(cors());
 
-  
-    // USE MIDDLEWARES
-    app.use(express.json());
-    app.use(cors());
+  // ROUTES
+  app.use("/api/v1/auth", authRoutes);
+  app.use("/api/v1/users", userRoutes);
 
-    // ROUTES
-    app.use('/api/v1/auth', authRoutes);
+  // HANDLE UNHANDLED ROUTES
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+  });
 
-    // HANDLE UNHANDLED ROUTES
-    app.use((req: Request, res: Response, next: NextFunction) => {
-        next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
-    });
+  // GLOBAL ERROR HANDLER
+  app.use(globalErrorHandler);
 
-    // GLOBAL ERROR HANDLER
-    app.use(globalErrorHandler);
-
-    // START SERVER
-    app.listen(config.PORT, () => {
-        console.log(`Server listening on port: ${config.PORT}`);
-    });
+  // START SERVER
+  app.listen(config.PORT, () => {
+    console.log(`Server listening on port: ${config.PORT}`);
+  });
 };
 bootstrap();
