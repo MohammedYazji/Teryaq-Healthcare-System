@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { config } from "../../../../config/env";
 import mongoose from "mongoose";
 import { UserModel } from "../../infrastructure/models/UserModel ";
-import { DoctorProfileModel } from "../../infrastructure/models/DoctorModel";
+import { DoctorProfileModel } from "../../../doctors/infrastructure/models/DoctorModel";
 import { PatientProfileModel } from "../../infrastructure/models/PatientModel";
 import { AppError } from "../../../../core/errors/AppError";
 import { Email } from "../../../../core/utils/email";
