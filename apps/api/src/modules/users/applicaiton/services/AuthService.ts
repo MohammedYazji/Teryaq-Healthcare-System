@@ -95,6 +95,14 @@ export class AuthService {
       throw new AppError("Invalid email or password", 401);
     }
 
+    // CHECK IF THE USER NOT EXIST
+    if (user.status === "suspended") {
+      throw new AppError(
+        "Your account has been suspended or deleted. Please contact support.",
+        403,
+      );
+    }
+
     // GENERATE TOKEN
     const token = this.generateToken(user._id.toString());
 
