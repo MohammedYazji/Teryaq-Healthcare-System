@@ -9,6 +9,7 @@ const router = Router();
 
 // UNAUTHENTICATED ROUTES
 router.get("/", specializationController.getAllSpecializations);
+router.get("/:id", specializationController.getSpecialization);
 
 // AUTHENTICATED ROUTES
 router.use(protect);

@@ -31,6 +31,22 @@ class SpecializationController {
       });
     },
   );
+
+  // FETCH A SPECIALIZATION
+  getSpecialization = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const specialization = await specializationService.findById(
+        req.params.id as string,
+      );
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          specialization,
+        },
+      });
+    },
+  );
 }
 
 export const specializationController = new SpecializationController();
