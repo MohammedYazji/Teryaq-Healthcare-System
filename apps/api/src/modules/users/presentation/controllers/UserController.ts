@@ -1,20 +1,10 @@
+import { filterObj } from "./../../../../core/utils/filterObject";
 import { Request, Response, NextFunction } from "express";
 import { catchAsync } from "../../../../core/utils/catchAsync";
 import { AppError } from "../../../../core/errors/AppError";
 import { userService } from "../../applicaiton/services/UserService";
 
 class UserController {
-  // METHOD TO FILTER FIELDS
-  // TO RESTRICT SENSITIVE ROLE FROM CHANGE LIKE 'PASSWORD'
-  private filterObj = (obj: any, ...allowedFields: string[]) => {
-    const newObj: any = {};
-
-    Object.keys(obj).forEach((el) => {
-      if (allowedFields.includes(el)) newObj[el] = obj[el];
-    });
-    return newObj;
-  };
-
   // MIDDLEWARE TO GET THE CURRENT AUTHENTICATED USER DATA
   // UserController.ts
   getMe = catchAsync(
@@ -42,7 +32,7 @@ class UserController {
       }
 
       // Allow to update the allowed fields
-      const filteredBody = this.filterObj(
+      const filteredBody = filterObj(
         req.body,
         "firstName",
         "lastName",
