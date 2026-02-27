@@ -29,6 +29,25 @@ class DoctorService {
     if (!profile) throw new AppError("There's no profile for this user.", 404);
     return profile;
   }
+
+  // UPDATE THE DOCTOR INFORMATION VIA ID
+  async updateProfile(userId: string, updateData: Partial<IDoctorProfile>) {
+    // get the user and update it
+    const updatedProfile = await DoctorProfileModel.findOneAndUpdate(
+      { userId },
+      updateData,
+      {
+        returnDocument: "after", // return the doc after updating
+        runValidators: true, // validate the new data
+      },
+    ).populate("specialization");
+
+    if (!updatedProfile) {
+      throw new AppError("Profile not found", 404);
+    }
+
+    return updatedProfile;
+  }
 }
 
 export const doctorService = new DoctorService();

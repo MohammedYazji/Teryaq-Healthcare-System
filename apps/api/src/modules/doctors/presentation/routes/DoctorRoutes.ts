@@ -11,5 +11,6 @@ const router = express.Router();
 // AUTHENTICATED ROUTES
 router.use(protect);
 router.get("/me", restrictTo("doctor"), doctorController.getMe);
+router.patch("/updateMe", restrictTo("doctor"), doctorController.updateMe);
 
 export { router as doctorRoutes };
