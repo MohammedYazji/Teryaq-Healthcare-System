@@ -2,11 +2,11 @@ import jwt from "jsonwebtoken";
 import { config } from "../../../../config/env";
 import mongoose from "mongoose";
 import { UserModel } from "../../infrastructure/models/UserModel ";
-import { DoctorProfileModel } from "../../../doctors/infrastructure/models/DoctorModel";
 import { PatientProfileModel } from "../../infrastructure/models/PatientModel";
 import { AppError } from "../../../../core/errors/AppError";
 import { Email } from "../../../../core/utils/email";
 import crypto from "crypto";
+import { doctorService } from "../../../doctors/application/services/DoctorService";
 
 export class AuthService {
   // GENERATE JWT TOKEN
@@ -36,12 +36,14 @@ export class AuthService {
       if (newUser.role === "doctor") {
         if (!doctorInfo)
           throw new AppError("doctor information is required", 400);
-        const [doctorProfile] = await DoctorProfileModel.create(
-          [{ userId: newUser._id.toString(), ...doctorInfo }],
-          { session },
+
+        await doctorService.createProfile(
+          {
+            userId: newUser._id as mongoose.Types.ObjectId,
+            ...doctorInfo,
+          },
+          session,
         );
-        profileId = doctorProfile._id;
-        newUser.doctorProfileId = profileId.toString();
       } else if (newUser.role === "patient") {
         if (!patientInfo)
           throw new AppError("patient information is required", 400);
