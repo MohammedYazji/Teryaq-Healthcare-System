@@ -6,6 +6,7 @@ import { globalErrorHandler } from "./core/middlewares/errorMiddleware";
 import { AppError } from "./core/errors/AppError";
 import { authRoutes } from "./modules/users/presentation/routes/authRoutes";
 import { userRoutes } from "./modules/users/presentation/routes/userRoutes";
+import { specializationRoutes } from "./modules/specializations/presentation/routes/specializationRoutes";
 
 const bootstrap = async () => {
   // SETUP EXPRESS
@@ -21,6 +22,7 @@ const bootstrap = async () => {
   // ROUTES
   app.use("/api/v1/auth", authRoutes);
   app.use("/api/v1/users", userRoutes);
+  app.use("/api/v1/specializations", specializationRoutes);
 
   // HANDLE UNHANDLED ROUTES
   app.use((req: Request, res: Response, next: NextFunction) => {
