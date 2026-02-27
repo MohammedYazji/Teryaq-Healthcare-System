@@ -8,6 +8,7 @@ import { authRoutes } from "./modules/users/presentation/routes/authRoutes";
 import { userRoutes } from "./modules/users/presentation/routes/userRoutes";
 import { specializationRoutes } from "./modules/specializations/presentation/routes/specializationRoutes";
 import { doctorRoutes } from "./modules/doctors/presentation/routes/DoctorRoutes";
+import { patientRoutes } from "./modules/patients/presentation/routes/patientRoutes";
 
 const bootstrap = async () => {
   // SETUP EXPRESS
@@ -25,6 +26,7 @@ const bootstrap = async () => {
   app.use("/api/v1/users", userRoutes);
   app.use("/api/v1/specializations", specializationRoutes);
   app.use("/api/v1/doctors", doctorRoutes);
+  app.use("/api/v1/patients", patientRoutes);
 
   // HANDLE UNHANDLED ROUTES
   app.use((req: Request, res: Response, next: NextFunction) => {
