@@ -19,6 +19,16 @@ class DoctorService {
 
     return profile;
   }
+
+  // FETCH THE DOCTOR INFORMATION VIA ID
+  async getProfileByUserId(userId: string) {
+    const profile = await DoctorProfileModel.findOne({ userId })
+      .populate("userId", "firstName lastName")
+      .populate("specialization");
+
+    if (!profile) throw new AppError("There's no profile for this user.", 404);
+    return profile;
+  }
 }
 
 export const doctorService = new DoctorService();
