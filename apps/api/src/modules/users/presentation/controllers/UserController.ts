@@ -36,8 +36,18 @@ class UserController {
         return next(new AppError("This route not for updating password", 400));
       }
 
+      // Prevent update the status
+      if (req.body.status) {
+        return next(new AppError("This route not for updating status", 400));
+      }
+
       // Allow to update the allowed fields
-      const filteredBody = this.filterObj(req.body, "name", "email");
+      const filteredBody = this.filterObj(
+        req.body,
+        "firstName",
+        "lastName",
+        "email",
+      );
 
       // Apply the service logic with those allowed fields
       const updatedUser = await userService.updateUserData(
