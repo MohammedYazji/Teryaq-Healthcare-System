@@ -23,6 +23,19 @@ class SpecializationService {
 
     return specialization;
   }
+
+  // METHOD TO FETCH UPDATE SPECIALIZATION BASED ON ID
+  async update(id: string, data: Partial<ISpecialization>) {
+    const spec = await SpecializationModel.findByIdAndUpdate(id, data, {
+      returnDocument: "after", // return data after update
+      runValidators: true, // validate the new data
+    });
+
+    if (!spec) {
+      throw new AppError("No specialization found with that ID", 404);
+    }
+    return spec;
+  }
 }
 
 export const specializationService = new SpecializationService();

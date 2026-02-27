@@ -47,6 +47,21 @@ class SpecializationController {
       });
     },
   );
+
+  // UPDATE A SPECIALIZATION
+  updateSpecialization = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const updatedSpec = await specializationService.update(
+        req.params.id as string,
+        req.body,
+      );
+
+      res.status(200).json({
+        status: "success",
+        data: { specialization: updatedSpec },
+      });
+    },
+  );
 }
 
 export const specializationController = new SpecializationController();

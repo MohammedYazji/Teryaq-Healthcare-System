@@ -18,5 +18,10 @@ router.post(
   restrictTo("admin"),
   specializationController.createSpecialization,
 );
+router.patch(
+  "/:id",
+  restrictTo("admin"),
+  specializationController.updateSpecialization,
+);
 
 export { router as specializationRoutes };
