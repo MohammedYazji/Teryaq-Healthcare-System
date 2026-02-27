@@ -48,6 +48,28 @@ class DoctorService {
 
     return updatedProfile;
   }
+
+  // FETCH ALL DOCTORS
+  async getAllDoctors() {
+    const doctors = await DoctorProfileModel.find()
+      .populate("userId", "firstName lastName photo")
+      .populate("specialization", "name icon");
+
+    // RETURN JUST THE DOCTORS PROFILES IF THEIR USER ID IS ACTIVE
+    return doctors.filter((doc) => doc.userId !== null);
+  }
+
+  // FETCH A DOCTOR USING THE DOCTOR ID
+  async getDoctorById(id: string) {
+    const doctor = await DoctorProfileModel.findById(id)
+      .populate("userId", "firstName lastName photo email")
+      .populate("specialization");
+
+    if (!doctor) {
+      throw new AppError("There's no doctor link with this ID", 404);
+    }
+    return doctor;
+  }
 }
 
 export const doctorService = new DoctorService();

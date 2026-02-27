@@ -42,6 +42,31 @@ export class DoctorController {
       });
     },
   );
+
+  // FETCH THE LIST OF DOCTORS
+  getAllDoctors = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const doctors = await doctorService.getAllDoctors();
+
+      res.status(200).json({
+        status: "success",
+        results: doctors.length,
+        data: { doctors },
+      });
+    },
+  );
+
+  // FETCH A DOCTOR USING DOCTOR ID
+  getDoctorById = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const doctor = await doctorService.getDoctorById(req.params.id as string);
+
+      res.status(200).json({
+        status: "success",
+        data: { doctor },
+      });
+    },
+  );
 }
 
 export const doctorController = new DoctorController();
