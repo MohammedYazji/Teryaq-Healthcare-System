@@ -62,6 +62,18 @@ class SpecializationController {
       });
     },
   );
+
+  // DELETE A SPECIALIZATION
+  deleteSpecialization = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      await specializationService.delete(req.params.id as string);
+
+      res.status(204).json({
+        status: "success",
+        data: null,
+      });
+    },
+  );
 }
 
 export const specializationController = new SpecializationController();

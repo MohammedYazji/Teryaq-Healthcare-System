@@ -23,5 +23,10 @@ router.patch(
   restrictTo("admin"),
   specializationController.updateSpecialization,
 );
+router.delete(
+  "/:id",
+  restrictTo("admin"),
+  specializationController.deleteSpecialization,
+);
 
 export { router as specializationRoutes };

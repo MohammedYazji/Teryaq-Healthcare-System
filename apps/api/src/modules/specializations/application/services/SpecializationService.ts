@@ -36,6 +36,21 @@ class SpecializationService {
     }
     return spec;
   }
+
+  // METHOD TO DELETE SPECIALIZATION BASED ON ID (SOFT DELETE)
+  async delete(id: string) {
+    const spec = await SpecializationModel.findByIdAndUpdate(
+      id,
+      {
+        active: false,
+      },
+      { returnDocument: "after" },
+    );
+
+    if (!spec) {
+      throw new AppError("No specialization found with that ID", 404);
+    }
+  }
 }
 
 export const specializationService = new SpecializationService();
