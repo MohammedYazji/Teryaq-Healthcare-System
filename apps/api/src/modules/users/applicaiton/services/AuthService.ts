@@ -2,11 +2,11 @@ import jwt from "jsonwebtoken";
 import { config } from "../../../../config/env";
 import mongoose from "mongoose";
 import { UserModel } from "../../infrastructure/models/UserModel ";
-import { PatientProfileModel } from "../../infrastructure/models/PatientModel";
 import { AppError } from "../../../../core/errors/AppError";
 import { Email } from "../../../../core/utils/email";
 import crypto from "crypto";
 import { doctorService } from "../../../doctors/application/services/DoctorService";
+import { patientService } from "../../../patients/application/services/PatientService";
 
 export class AuthService {
   // GENERATE JWT TOKEN
@@ -47,14 +47,15 @@ export class AuthService {
       } else if (newUser.role === "patient") {
         if (!patientInfo)
           throw new AppError("patient information is required", 400);
-        const [patientProfile] = await PatientProfileModel.create(
-          [{ userId: newUser._id.toString(), ...(patientInfo || {}) }],
-          { session },
-        );
-        profileId = patientProfile._id;
-        newUser.patientProfileId = profileId.toString();
-      }
 
+        await patientService.createProfile(
+          {
+            userId: newUser._id as mongoose.Types.ObjectId,
+            ...patientInfo,
+          },
+          session,
+        );
+      }
       // SAVE THE USER
       await newUser.save({ session });
 
