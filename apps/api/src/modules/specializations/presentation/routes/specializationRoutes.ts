@@ -7,9 +7,13 @@ import {
 
 const router = Router();
 
+// UNAUTHENTICATED ROUTES
+router.get("/", specializationController.getAllSpecializations);
+
+// AUTHENTICATED ROUTES
+router.use(protect);
 router.post(
   "/",
-  protect,
   restrictTo("admin"),
   specializationController.createSpecialization,
 );

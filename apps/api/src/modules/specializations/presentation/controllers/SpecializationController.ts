@@ -3,6 +3,7 @@ import { specializationService } from "../../application/services/Specialization
 import { catchAsync } from "../../../../core/utils/catchAsync";
 
 class SpecializationController {
+  // CREATE A NEW SPECIALIZATION
   createSpecialization = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const newSpec = await specializationService.create(req.body);
@@ -11,6 +12,21 @@ class SpecializationController {
         status: "success",
         data: {
           specialization: newSpec,
+        },
+      });
+    },
+  );
+
+  // FETCH ALL SPECIALIZATIONS
+  getAllSpecializations = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const specs = await specializationService.findAll();
+
+      res.status(200).json({
+        status: "success",
+        results: specs.length,
+        data: {
+          specializations: specs,
         },
       });
     },

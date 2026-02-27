@@ -6,6 +6,11 @@ class SpecializationService {
   async create(data: Partial<ISpecialization>) {
     return await SpecializationModel.create(data);
   }
+
+  // METHOD TO FETCH ALL THE SPECIALIZATIONS DATA (SORTED)
+  async findAll() {
+    return await SpecializationModel.find().sort("name");
+  }
 }
 
 export const specializationService = new SpecializationService();
