@@ -7,13 +7,21 @@ import {
 
 const router = Router();
 
-// ALL ROUTS MUST BE AUTHENTICATED
+// UNAUTHENTICATED ROUTES
+router.get("/doctor/:doctorId", AvailabilityController.getDoctorSlots);
+
+// AUTHENTICATED ROUTES
 router.use(protect);
 
 router.patch(
   "/setBulk",
   restrictTo("doctor"),
   AvailabilityController.createBulkSlots
+);
+router.get(
+  "/mySlots",
+  restrictTo("doctor"),
+  AvailabilityController.getMyAvailability
 );
 
 export { router as availabilityRoutes };

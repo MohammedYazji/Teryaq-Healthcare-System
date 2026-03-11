@@ -72,4 +72,22 @@ export class AvailabilityService {
     // BULK INSERT INTO THE DB
     return await AvailabilityModel.insertMany(slotsToCreate);
   }
+
+  // GET THE AVAILABLE SLOTS FOR A DOCTOR
+  static async getDoctorAvailability(
+    doctorId: string,
+    onlyAvailable: boolean = false
+  ) {
+    const query: any = { doctorId };
+
+    // FILTERED OUT THE BOOKED SLOTS
+    if (onlyAvailable) {
+      query.isAvailable = true;
+    }
+
+    return await AvailabilityModel.find(query).sort({
+      dayOfWeek: 1,
+      startTime: 1,
+    });
+  }
 }
