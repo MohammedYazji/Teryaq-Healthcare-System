@@ -38,15 +38,18 @@ export class AvailabilityController {
   static getDoctorSlots = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const doctorId = req.params.doctorId as string;
+      const { day } = req.query; // EXTRACT THE DAY FROM THE QUERY STRING
 
       if (!doctorId) {
         return next(new AppError("Doctor ID is required", 400));
       }
 
       // JUST GET THE AVAILABLE SLOTS TO THE PUBLIC/PATIENTS
+      // PASS DAY FOR SPECIFIC DAY, OR GET AVAILABLE SLOTS FOR ALL DAYS
       const slots = await AvailabilityService.getDoctorAvailability(
         doctorId,
-        true
+        true,
+        day as string
       );
 
       res.status(200).json({

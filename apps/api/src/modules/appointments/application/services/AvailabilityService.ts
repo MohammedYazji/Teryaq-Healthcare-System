@@ -76,18 +76,16 @@ export class AvailabilityService {
   // GET THE AVAILABLE SLOTS FOR A DOCTOR
   static async getDoctorAvailability(
     doctorId: string,
-    onlyAvailable: boolean = false
+    onlyAvailable: boolean = false,
+    dayOfWeek?: string // AS OPTIONAL PARAMETER
   ) {
     const query: any = { doctorId };
 
     // FILTERED OUT THE BOOKED SLOTS
-    if (onlyAvailable) {
-      query.isAvailable = true;
-    }
+    if (onlyAvailable) query.isAvailable = true;
+    // FILTER BY DAY IF PROVIDED
+    if (dayOfWeek) query.dayOfWeek = dayOfWeek?.toLowerCase();
 
-    return await AvailabilityModel.find(query).sort({
-      dayOfWeek: 1,
-      startTime: 1,
-    });
+    return await AvailabilityModel.find(query).sort({ startTime: 1 });
   }
 }
