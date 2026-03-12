@@ -1,6 +1,5 @@
 import { AppError } from "../../../../core/errors/AppError";
 import { AvailabilityModel } from "../../infrastructure/models/AvailabilityModel";
-import { IAvailabilitySlot } from "./../../domain/entities/IAvailabilitySlot";
 
 export class AvailabilityService {
   // HELPER FUNCTION TO CONVERT HH:MM STRING TO MINUTES FOR EASY CALCULATION
@@ -26,7 +25,7 @@ export class AvailabilityService {
       startTime: string;
       endTime: string;
       durationMinutes: number;
-    }
+    },
   ) {
     const { dayOfWeek, startTime, endTime, durationMinutes } = data;
 
@@ -46,7 +45,7 @@ export class AvailabilityService {
     if (existingSlots) {
       throw new AppError(
         `Slots for ${dayOfWeek} already exist. Please update them instead.`,
-        400
+        400,
       );
     }
 
@@ -77,7 +76,7 @@ export class AvailabilityService {
   static async getDoctorAvailability(
     doctorId: string,
     onlyAvailable: boolean = false,
-    dayOfWeek?: string // AS OPTIONAL PARAMETER
+    dayOfWeek?: string, // AS OPTIONAL PARAMETER
   ) {
     const query: any = { doctorId };
 

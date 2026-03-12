@@ -14,15 +14,15 @@ export class AvailabilityController {
         return next(
           new AppError(
             "You must be logged in as a doctor to perform this action",
-            401
-          )
+            401,
+          ),
         );
       }
 
       // CALL THE SERVICE TO GENERATE SLOTS
       const slots = await AvailabilityService.createBulkSlots(
         doctorId,
-        req.body
+        req.body,
       );
 
       // SEND THE RESPONSE
@@ -31,7 +31,7 @@ export class AvailabilityController {
         results: slots.length,
         data: { slots },
       });
-    }
+    },
   );
 
   // PUBLIC CONTROLLER TO GET AVAILABILITY FOR ANY DOCTOR (USED BY PATIENTS)
@@ -49,7 +49,7 @@ export class AvailabilityController {
       const slots = await AvailabilityService.getDoctorAvailability(
         doctorId,
         true,
-        day as string
+        day as string,
       );
 
       res.status(200).json({
@@ -57,7 +57,7 @@ export class AvailabilityController {
         results: slots.length,
         data: { slots },
       });
-    }
+    },
   );
 
   // CONTROLLER FOR THE LOGGED-IN DOCTOR TO SEE ALL THEIR SLOTS
@@ -72,7 +72,7 @@ export class AvailabilityController {
       // GET ALL SLOTS (BOTH AVAILABLE AND BOOKED FOR THE DOCTOR)
       const slots = await AvailabilityService.getDoctorAvailability(
         doctorId,
-        false
+        false,
       );
 
       res.status(200).json({
@@ -80,6 +80,6 @@ export class AvailabilityController {
         results: slots.length,
         data: { slots },
       });
-    }
+    },
   );
 }
