@@ -54,4 +54,20 @@ export class AppointmentService {
       throw new AppError(`Booking failed: ${error.message}`, 500);
     }
   }
+
+  // FETCH THE USER APPOINTMENTS (FOR PATIENT AND DOCTOR)
+  static async getUserAppointments(
+    role: "doctor" | "patient",
+    profileId: string,
+  ) {
+    const query =
+      role === "doctor" ? { doctorId: profileId } : { patientId: profileId };
+
+    return await AppointmentModel.find(query)
+      .populate({
+        path: role === "doctor" ? "patientId" : "doctorId",
+        select: "firstName lastName email phoneNumber photo",
+      })
+      .sort({ createdAt: -1 }); // Newest First
+  }
 }

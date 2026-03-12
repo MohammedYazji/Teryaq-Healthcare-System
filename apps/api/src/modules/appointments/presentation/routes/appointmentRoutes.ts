@@ -15,4 +15,6 @@ router.post(
   restrictTo("patient"),
   AppointmentController.bookAppointment,
 );
+router.get("/myAppointments", AppointmentController.getMyAppointments);
+
 export { router as appointmentRoutes };

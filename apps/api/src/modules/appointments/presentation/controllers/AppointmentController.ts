@@ -25,4 +25,31 @@ export class AppointmentController {
       });
     },
   );
+
+  // GET THE CURRENT USER APPOINTMENTS
+  // EITHER PATIENT OR DOCTOR
+  static getMyAppointments = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      // BASED THE USER ROLE
+      const profileId =
+        req.user?.role === "doctor"
+          ? req.user.doctorProfileId
+          : req.user.patientProfileId;
+
+      if (!profileId) {
+        return next(new AppError("Profile not found", 404));
+      }
+
+      const appointments = await AppointmentService.getUserAppointments(
+        req.user?.role as "doctor" | "patient",
+        profileId as string,
+      );
+
+      res.status(200).json({
+        status: "success",
+        results: appointments.length,
+        data: { appointments },
+      });
+    },
+  );
 }
