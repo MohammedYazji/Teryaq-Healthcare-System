@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { AvailabilityController } from "../controllers/AvailabilityControl";
+import { AvailabilityController } from "../controllers/AvailabilityController";
 import {
   protect,
   restrictTo,
@@ -16,12 +16,12 @@ router.use(protect);
 router.patch(
   "/setBulk",
   restrictTo("doctor"),
-  AvailabilityController.createBulkSlots
+  AvailabilityController.createBulkSlots,
 );
 router.get(
   "/mySlots",
   restrictTo("doctor"),
-  AvailabilityController.getMyAvailability
+  AvailabilityController.getMyAvailability,
 );
 
 export { router as availabilityRoutes };
