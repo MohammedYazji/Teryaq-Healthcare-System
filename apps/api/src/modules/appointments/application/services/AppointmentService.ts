@@ -70,4 +70,56 @@ export class AppointmentService {
       })
       .sort({ createdAt: -1 }); // Newest First
   }
+
+  // UPDATE THE APPOINTMENT STATUS VIA THE DOCTOR
+  static async updateStatus(
+    appointmentId: string,
+    doctorId: string,
+    newStatus: "scheduled" | "cancelled",
+  ) {
+    // FETCH THE APPOINTMENT
+    const appointment = await AppointmentModel.findOne({
+      _id: appointmentId,
+      doctorId,
+    });
+
+    if (!appointment) {
+      throw new AppError(
+        "Appointment not found or you do not have permission",
+        404,
+      );
+    }
+
+    // IF THE APPOINTMENT CANCELLED MAKE THE SLOT AVAILABLE AGAIN
+    if (newStatus === "cancelled") {
+      await AvailabilityModel.findByIdAndUpdate(appointment.slotId, {
+        isAvailable: true,
+      });
+    }
+
+    // IF THE APPOINTMENT SCHEDULED ENSURE THE SLOT STILL NOT AVAILABLE
+    if (newStatus === "scheduled") {
+      const slot = await AvailabilityModel.findById(appointment.slotId);
+
+      // ENSURE NOBODY ELSE BOOKED THE SLOT
+      // SO IF THE DOCTOR CANCELLED THE APPOINTMENT THEN SOMEBODY BOOKED
+      // THE DOCTOR WILL NOT BE ABLE TO RE-SCHEDULE IT
+      if (slot && !slot.isAvailable && appointment.status === "cancelled") {
+        throw new AppError(
+          "Cannot re-schedule; this slot has been taken by another patient",
+          400,
+        );
+      }
+
+      await AvailabilityModel.findByIdAndUpdate(appointment.slotId, {
+        isAvailable: false,
+      });
+    }
+
+    // UPDATE THE APPOINTMENT STATUS
+    appointment.status = newStatus;
+    await appointment?.save();
+
+    return appointment;
+  }
 }

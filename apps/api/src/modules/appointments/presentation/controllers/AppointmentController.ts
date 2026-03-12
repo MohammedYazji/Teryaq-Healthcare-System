@@ -52,4 +52,34 @@ export class AppointmentController {
       });
     },
   );
+
+  // UPDATE THE APPOINTMENT STATUS VIA DOCTOR
+  // ACCEPT/REJECT APPOINTMENT
+  static updateStatus = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+      const { status } = req.body;
+      const doctorId = req.user?.doctorProfileId;
+
+      if (!["scheduled", "cancelled"].includes(status)) {
+        return next(
+          new AppError(
+            "Invalid status. Please use scheduled or cancelled",
+            400,
+          ),
+        );
+      }
+
+      const appointment = await AppointmentService.updateStatus(
+        id as string,
+        doctorId as string,
+        status,
+      );
+
+      res.status(200).json({
+        status: "success",
+        data: { appointment },
+      });
+    },
+  );
 }

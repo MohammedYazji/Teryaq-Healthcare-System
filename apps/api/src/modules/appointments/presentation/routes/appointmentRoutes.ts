@@ -15,6 +15,13 @@ router.post(
   restrictTo("patient"),
   AppointmentController.bookAppointment,
 );
+
 router.get("/myAppointments", AppointmentController.getMyAppointments);
+
+router.patch(
+  "/:id/status",
+  restrictTo("doctor"),
+  AppointmentController.updateStatus,
+);
 
 export { router as appointmentRoutes };
