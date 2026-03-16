@@ -43,4 +43,27 @@ export class Email {
       message,
     );
   }
+
+  async sendNewAppointmentAlert(
+    patientName: string,
+    date: string,
+    time: string,
+  ) {
+    const message = `Hello Doctor,\n\nYou have a new appointment request.\n\nPatient: ${patientName}\nDate: ${date}\nTime: ${time}\n\nPlease login to your dashboard to accept or decline the request.`;
+    await this.send("New Appointment Request - Teryaq", message);
+  }
+
+  async sendAppointmentConfirmed(
+    doctorName: string,
+    date: string,
+    time: string,
+  ) {
+    const message = `Hello,\n\nYour appointment has been successfully confirmed!\n\nDoctor: ${doctorName}\nDate: ${date}\nTime: ${time}\n\nWe wish you a healthy life.`;
+    await this.send("Appointment Confirmation - Teryaq", message);
+  }
+
+  async sendAppointmentCancelled(reason: string) {
+    const message = `We regret to inform you that your appointment has been cancelled.\nReason: ${reason}\n\nYou can book a new appointment at a different time.`;
+    await this.send("Appointment Update - Teryaq", message);
+  }
 }

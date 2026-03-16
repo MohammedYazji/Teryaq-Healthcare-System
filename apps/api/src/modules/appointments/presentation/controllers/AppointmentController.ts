@@ -58,7 +58,7 @@ export class AppointmentController {
   static updateStatus = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
-      const { status } = req.body;
+      const { status, cancellationReason } = req.body;
       const doctorId = req.user?.doctorProfileId;
 
       if (!["scheduled", "cancelled"].includes(status)) {
@@ -74,6 +74,7 @@ export class AppointmentController {
         id as string,
         doctorId as string,
         status,
+        cancellationReason,
       );
 
       res.status(200).json({

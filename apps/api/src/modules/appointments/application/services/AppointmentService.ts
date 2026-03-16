@@ -2,6 +2,9 @@ import { AvailabilityModel } from "../../infrastructure/models/AvailabilityModel
 import { DoctorProfileModel } from "../../../doctors/infrastructure/models/DoctorModel";
 import { AppointmentModel } from "../../infrastructure/models/AppointmentModel";
 import { AppError } from "../../../../core/errors/AppError";
+import { UserModel } from "../../../users/infrastructure/models/UserModel ";
+import { Email } from "../../../../core/utils/email";
+import { PatientProfileModel } from "../../../patients/infrastructure/models/PatientModel";
 
 export class AppointmentService {
   // CORE LOGIC TO CREATE A NEW APPOINTMENT
@@ -38,12 +41,33 @@ export class AppointmentService {
         patientId,
         doctorId: slot.doctorId,
         slotId: slot._id,
-        appointmentDate: new Date(), // For now, we use current date; later we'll use actual calendar date
+        appointmentDate: new Date(), // TO-DO For now, we use current date; later we'll use actual calendar date
         appointmentTime: slot.startTime, // SNAPSHOT from slot
         status: "pending", // Waiting for doctor approval
         reason: reason || "Regular Checkup", // Optional from user input
         fee: doctor.consultationFee, // SNAPSHOT from doctor profile
       });
+
+      // 1. Fetch and Populate
+      const patientProfile =
+        await PatientProfileModel.findById(patientId).populate("userId");
+
+      // 2. Check if userId is actually an object (populated) and not just an ID string
+      const patientUser =
+        patientProfile?.userId && typeof patientProfile.userId === "object"
+          ? (patientProfile.userId as any)
+          : null;
+
+      if (doctor.userId && patientUser) {
+        const doctorUser = await UserModel.findById(doctor.userId);
+        if (doctorUser) {
+          await new Email(doctorUser).sendNewAppointmentAlert(
+            `${patientUser.firstName || "Valued"} ${patientUser.lastName || "Patient"}`,
+            appointment.appointmentDate.toDateString(),
+            appointment.appointmentTime,
+          );
+        }
+      }
 
       return appointment;
     } catch (error: any) {
@@ -76,6 +100,7 @@ export class AppointmentService {
     appointmentId: string,
     doctorId: string,
     newStatus: "scheduled" | "cancelled",
+    cancellationReason?: string,
   ) {
     // FETCH THE APPOINTMENT
     const appointment = await AppointmentModel.findOne({
@@ -92,9 +117,24 @@ export class AppointmentService {
 
     // IF THE APPOINTMENT CANCELLED MAKE THE SLOT AVAILABLE AGAIN
     if (newStatus === "cancelled") {
+      // 1. Free the slot
       await AvailabilityModel.findByIdAndUpdate(appointment.slotId, {
         isAvailable: true,
       });
+
+      // 2. Save the cancellationReason in the DB
+      appointment.cancellationReason =
+        cancellationReason || "No reason provided by the doctor.";
+
+      // 3. Notify the patient
+      const patient = await PatientProfileModel.findById(
+        appointment.patientId,
+      ).populate("userId");
+      if (patient?.userId) {
+        await new Email(patient.userId as any).sendAppointmentCancelled(
+          appointment.cancellationReason,
+        );
+      }
     }
 
     // IF THE APPOINTMENT SCHEDULED ENSURE THE SLOT STILL NOT AVAILABLE
@@ -114,11 +154,32 @@ export class AppointmentService {
       await AvailabilityModel.findByIdAndUpdate(appointment.slotId, {
         isAvailable: false,
       });
+
+      // So if the doctor cancel it before then scheduled it again(remove the cancellationReason)
+      appointment.cancellationReason = undefined;
     }
 
     // UPDATE THE APPOINTMENT STATUS
     appointment.status = newStatus;
     await appointment?.save();
+
+    if (newStatus === "scheduled") {
+      const patient = await PatientProfileModel.findById(
+        appointment.patientId,
+      ).populate("userId");
+      const doctorProfile =
+        await DoctorProfileModel.findById(doctorId).populate("userId");
+      const doctorLastName =
+        (doctorProfile?.userId as any)?.lastName || "Doctor";
+
+      if (patient?.userId) {
+        await new Email(patient.userId as any).sendAppointmentConfirmed(
+          `Dr. ${doctorLastName}`,
+          appointment.appointmentDate.toDateString(),
+          appointment.appointmentTime,
+        );
+      }
+    }
 
     return appointment;
   }
