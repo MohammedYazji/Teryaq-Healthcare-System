@@ -82,4 +82,26 @@ export class AppointmentController {
       });
     },
   );
+
+  // GET APPOINTMENT BY ID
+  static getAppointment = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+      const profileId =
+        req.user?.role === "doctor"
+          ? req.user.doctorProfileId
+          : req.user.patientProfileId;
+
+      const appointment = await AppointmentService.getAppointmentById(
+        id as string,
+        profileId as string,
+        req.user?.role as string,
+      );
+
+      res.status(200).json({
+        status: "success",
+        data: { appointment },
+      });
+    },
+  );
 }

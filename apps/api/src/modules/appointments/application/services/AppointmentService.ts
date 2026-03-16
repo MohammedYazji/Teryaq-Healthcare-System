@@ -122,4 +122,22 @@ export class AppointmentService {
 
     return appointment;
   }
+
+  // FETCH SPECIFIC APPOINTMENT BY IT'S ID
+  static async getAppointmentById(id: string, profileId: string, role: string) {
+    // get the id of the another end to show his info with the appointment
+    // Example: if patient use the service so will show the appointment and the doctor info
+    const query =
+      role === "doctor"
+        ? { _id: id, doctorId: profileId }
+        : { _id: id, patientId: profileId };
+
+    const appointment = await AppointmentModel.findOne(query).populate({
+      path: role === "doctor" ? "patientId" : "doctorId",
+      select: "firstName lastName email phoneNumber photo",
+    });
+
+    if (!appointment) throw new AppError("Appointment not found", 404);
+    return appointment;
+  }
 }

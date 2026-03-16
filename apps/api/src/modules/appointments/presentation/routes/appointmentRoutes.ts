@@ -18,6 +18,8 @@ router.post(
 
 router.get("/myAppointments", AppointmentController.getMyAppointments);
 
+router.get("/:id", AppointmentController.getAppointment);
+
 router.patch(
   "/:id/status",
   restrictTo("doctor"),
