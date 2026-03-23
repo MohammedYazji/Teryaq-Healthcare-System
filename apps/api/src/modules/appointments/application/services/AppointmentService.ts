@@ -201,4 +201,80 @@ export class AppointmentService {
     if (!appointment) throw new AppError("Appointment not found", 404);
     return appointment;
   }
+
+  // Reschedule THE APPOINTMENT WITH NEW AVAILABLE SLOT
+  static async reschedule(
+    appointmentId: string,
+    profileId: string, // id of the person making the change
+    role: "doctor" | "patient",
+    newSlotId: string,
+  ) {
+    // Fetch current appointment
+    const query =
+      role === "doctor"
+        ? { _id: appointmentId, doctorId: profileId }
+        : { _id: appointmentId, patientId: profileId };
+
+    const appointment = await AppointmentModel.findById(query);
+    if (!appointment)
+      throw new AppError("Appointment not found or unauthorized", 404);
+
+    // Fetch the new slot
+    const newSlot = await AvailabilityModel.findById(newSlotId);
+    if (!newSlot || !newSlot.isAvailable)
+      throw new AppError("The new time slot is not available", 400);
+
+    // Free the old slot
+    await AvailabilityModel.findByIdAndUpdate(appointment.slotId, {
+      isAvailable: true,
+    });
+
+    // Lock the new slot
+    newSlot.isAvailable = false;
+    await newSlot.save();
+
+    // Update the appointment details
+    appointment.slotId = newSlot._id as any;
+    appointment.appointmentTime = newSlot.startTime; // Update the snapshot
+    appointment.status = "scheduled"; // Reset status to scheduled if it was pending
+    appointment.cancellationReason = undefined; // Clear any old reasons
+
+    await appointment.save();
+
+    // Send Email
+    try {
+      const patientProfile = await PatientProfileModel.findById(
+        appointment.patientId,
+      ).populate("userId");
+      const doctorProfile = await DoctorProfileModel.findById(
+        appointment.doctorId,
+      ).populate("userId");
+
+      const patientUser = patientProfile?.userId as any;
+      const doctorUser = doctorProfile?.userId as any;
+
+      if (role === "doctor" && patientUser) {
+        // if the doctor change the slot (send to patient)
+        await new Email(patientUser).sendRescheduledNotification(
+          `Dr. ${doctorUser?.lastName || "Doctor"}`,
+          appointment.appointmentDate.toDateString(),
+          appointment.appointmentTime,
+        );
+      } else if (role === "patient" && doctorUser) {
+        // if the patient change the slot (send to doctor)
+        await new Email(doctorUser).sendRescheduledNotification(
+          `${patientUser?.firstName} ${patientUser?.lastName}`,
+          appointment.appointmentDate.toDateString(),
+          appointment.appointmentTime,
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Email notification failed but appointment was rescheduled:",
+        error,
+      );
+    }
+
+    return appointment;
+  }
 }

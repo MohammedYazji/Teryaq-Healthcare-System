@@ -26,4 +26,6 @@ router.patch(
   AppointmentController.updateStatus,
 );
 
+router.patch("/:id/reschedule", AppointmentController.reschedule);
+
 export { router as appointmentRoutes };

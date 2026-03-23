@@ -105,4 +105,36 @@ export class AppointmentController {
       });
     },
   );
+
+  // RESCHEDULED AN APPOINTMENT
+  static reschedule = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params; // Appointment ID
+      const { newSlotId } = req.body; // New Slot ID from Body
+
+      // Check the role of the subject
+      const role = req.user?.role as "doctor" | "patient";
+      const profileId =
+        role === "doctor"
+          ? req.user?.doctorProfileId
+          : req.user?.patientProfileId;
+
+      if (!profileId) {
+        return next(new AppError("Profile not found for this user", 400));
+      }
+
+      const appointment = await AppointmentService.reschedule(
+        id as string,
+        profileId,
+        role,
+        newSlotId,
+      );
+
+      res.status(200).json({
+        status: "success",
+        message: "Appointment rescheduled successfully",
+        data: { appointment },
+      });
+    },
+  );
 }

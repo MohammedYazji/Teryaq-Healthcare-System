@@ -66,4 +66,13 @@ export class Email {
     const message = `We regret to inform you that your appointment has been cancelled.\nReason: ${reason}\n\nYou can book a new appointment at a different time.`;
     await this.send("Appointment Update - Teryaq", message);
   }
+
+  async sendRescheduledNotification(
+    otherPartyName: string,
+    newDate: string,
+    newTime: string,
+  ) {
+    const message = `Hello,\n\nYour appointment has been rescheduled.\n\nUpdated Details:\nWith: ${otherPartyName}\nNew Date: ${newDate}\nNew Time: ${newTime}\n\nPlease check your dashboard for more details.`;
+    await this.send("Appointment Rescheduled - Teryaq", message);
+  }
 }
