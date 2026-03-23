@@ -7,8 +7,14 @@ import {
 
 const router = Router();
 
+// AUTHENTICATED ROUTES
 router.use(protect);
 
 router.post("/", restrictTo("doctor"), MedicalRecordController.createRecord);
+
+router.get(
+  "/appointments/:appointmentId",
+  MedicalRecordController.getRecordByAppointment,
+);
 
 export { router as medicalRecordRouter };

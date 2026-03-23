@@ -4,6 +4,7 @@ import { catchAsync } from "../../../../core/utils/catchAsync";
 import { AppError } from "../../../../core/errors/AppError";
 
 export class MedicalRecordController {
+  //   CREATE MEDICAL RECORD FOR THE APPOINTMENT VIA THE DOCTOR
   static createRecord = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       // Ensure the user is a doctor
@@ -20,6 +21,25 @@ export class MedicalRecordController {
       );
 
       res.status(201).json({
+        status: "success",
+        data: { record },
+      });
+    },
+  );
+
+  // GET THE RECORD OF THE APPOINTMENT FOR (PATIENT, OR DOCTOR)
+  static getRecordByAppointment = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { appointmentId } = req.params;
+
+      if (typeof appointmentId !== "string") {
+        return next(new AppError("Invalid Appointment ID format", 400));
+      }
+
+      const record =
+        await MedicalRecordService.getRecordByAppointment(appointmentId);
+
+      res.status(200).json({
         status: "success",
         data: { record },
       });

@@ -48,4 +48,15 @@ export class MedicalRecordService {
 
     return record;
   }
+
+  // Get specific record by appointment ID
+  static async getRecordByAppointment(appointmentId: string) {
+    const record = await MedicalRecordModel.findOne({ appointmentId })
+      .populate("doctorId", "firstName lastName")
+      .populate("patientId", "firstName lastName");
+
+    if (!record)
+      throw new AppError("No medical record found for this appointment", 404);
+    return record;
+  }
 }
