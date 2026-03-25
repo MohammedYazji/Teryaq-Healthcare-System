@@ -8,13 +8,13 @@ protect;
 
 const router = express.Router();
 
-// UNAUTHENTICATED ROUTES
-router.get("/", doctorController.getAllDoctors);
-router.get("/:id", doctorController.getDoctorById);
-
 // AUTHENTICATED ROUTES
 router.use(protect);
 router.get("/me", restrictTo("doctor"), doctorController.getMe);
 router.patch("/updateMe", restrictTo("doctor"), doctorController.updateMe);
+
+// UNAUTHENTICATED ROUTES
+router.get("/", doctorController.getAllDoctors);
+router.get("/:id", doctorController.getDoctorById);
 
 export { router as doctorRoutes };

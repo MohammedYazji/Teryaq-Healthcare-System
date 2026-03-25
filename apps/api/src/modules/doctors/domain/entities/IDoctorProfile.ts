@@ -9,4 +9,8 @@ export interface IDoctorProfile {
   bio?: string;
   consultationFee?: number;
   isVerified?: boolean;
+  averageRating?: number;
+  numberOfReviews?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
