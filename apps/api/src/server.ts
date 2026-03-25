@@ -12,6 +12,7 @@ import { patientRoutes } from "./modules/patients/presentation/routes/patientRou
 import { availabilityRoutes } from "./modules/appointments/presentation/routes/availabilityRoutes";
 import { appointmentRoutes } from "./modules/appointments/presentation/routes/appointmentRoutes";
 import { medicalRecordRouter } from "./modules/medicalRecords/presentation/routes/MedicalRecordRoutes";
+import { reviewRouter } from "./modules/reviews/presentation/routes/ReviewRoutes";
 
 const bootstrap = async () => {
   // SETUP EXPRESS
@@ -33,6 +34,7 @@ const bootstrap = async () => {
   app.use("/api/v1/availability", availabilityRoutes);
   app.use("/api/v1/appointments", appointmentRoutes);
   app.use("/api/v1/medical-record", medicalRecordRouter);
+  app.use("/api/v1/reviews", reviewRouter);
 
   // HANDLE UNHANDLED ROUTES
   app.use((req: Request, res: Response, next: NextFunction) => {
