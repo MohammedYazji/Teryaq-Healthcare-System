@@ -59,4 +59,31 @@ export class MedicalRecordService {
       throw new AppError("No medical record found for this appointment", 404);
     return record;
   }
+
+  // Update a record information
+  static async updateMedicalRecord(
+    recordId: string,
+    doctorId: string,
+    updateData: any,
+  ) {
+    const record = await MedicalRecordModel.findById(recordId);
+
+    if (!record) throw new AppError("Medical record not found", 404);
+
+    // Ensure the current doctor is the record owner
+    // The doctor who wrote the record should edit it
+    if (record.doctorId.toString() !== doctorId)
+      throw new AppError("You are not authorized to update this record", 403);
+
+    const updatedRecord = await MedicalRecordModel.findByIdAndUpdate(
+      recordId,
+      updateData,
+      {
+        returnDocument: "after",
+        runValidators: true,
+      },
+    );
+
+    return updatedRecord;
+  }
 }

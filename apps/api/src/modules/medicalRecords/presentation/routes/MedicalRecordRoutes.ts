@@ -17,4 +17,10 @@ router.get(
   MedicalRecordController.getRecordByAppointment,
 );
 
+router.patch(
+  "/:id",
+  restrictTo("doctor"),
+  MedicalRecordController.updateRecord,
+);
+
 export { router as medicalRecordRouter };

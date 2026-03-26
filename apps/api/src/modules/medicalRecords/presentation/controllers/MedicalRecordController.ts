@@ -45,4 +45,28 @@ export class MedicalRecordController {
       });
     },
   );
+
+  // UPDATE THE RECORD INFORMATION
+  static updateRecord = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const doctorId = req.user?.doctorProfileId;
+      const { id } = req.params;
+
+      if (!doctorId)
+        return next(
+          new AppError("Only doctors can update medical records", 403),
+        );
+
+      const record = await MedicalRecordService.updateMedicalRecord(
+        id as string,
+        doctorId.toString(),
+        req.body,
+      );
+
+      res.status(200).json({
+        status: "success",
+        data: { record },
+      });
+    },
+  );
 }
