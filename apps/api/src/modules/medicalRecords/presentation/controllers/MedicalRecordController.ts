@@ -69,4 +69,28 @@ export class MedicalRecordController {
       });
     },
   );
+
+  // DELETE A RECORD
+  static deleteRecord = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const doctorId = req.user?.doctorProfileId;
+      const { id } = req.params;
+
+      if (!doctorId) {
+        return next(
+          new AppError("Only doctors can delete medical records", 403),
+        );
+      }
+
+      await MedicalRecordService.deleteMedicalRecord(
+        id as string,
+        doctorId.toString(),
+      );
+
+      res.status(204).json({
+        status: "success",
+        data: null,
+      });
+    },
+  );
 }

@@ -86,4 +86,23 @@ export class MedicalRecordService {
 
     return updatedRecord;
   }
+
+  // Delete a record
+  static async deleteMedicalRecord(recordId: string, doctorId: string) {
+    // Ensure the record is there
+    const record = await MedicalRecordModel.findById(recordId);
+
+    if (!record) throw new AppError("Medical record not found", 404);
+
+    // The doctor who own the record the only one can delete it
+    if (record.doctorId.toString() !== doctorId) {
+      throw new AppError(
+        "You are not authorized to delete this medical record",
+        403,
+      );
+    }
+
+    // Delete it
+    await MedicalRecordModel.findByIdAndDelete(recordId);
+  }
 }
