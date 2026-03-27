@@ -33,6 +33,13 @@ const DoctorSchema = new Schema<IDoctorDocument>(
       type: Boolean,
       default: false,
     },
+    documents: [
+      {
+        name: { type: String, required: true },
+        url: { type: String, required: true },
+        publicId: { type: String, required: true },
+      },
+    ],
     averageRating: {
       type: Number,
       default: 4.5,
