@@ -51,6 +51,10 @@ const UserSchema: Schema<IUserDocument> = new Schema(
       type: String,
       default: "default.jpg",
     },
+    photoPublicId: {
+      type: String,
+      default: null, // cause default photo hasn't publicId
+    },
     status: {
       type: String,
       enum: ["active", "suspended", "pending"],

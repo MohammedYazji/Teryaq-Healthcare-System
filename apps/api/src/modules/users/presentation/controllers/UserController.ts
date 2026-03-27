@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { catchAsync } from "../../../../core/utils/catchAsync";
 import { AppError } from "../../../../core/errors/AppError";
 import { userService } from "../../applicaiton/services/UserService";
+import { CloudinaryService } from "../../../../core/services/CloudinaryService";
 
 class UserController {
   // MIDDLEWARE TO GET THE CURRENT AUTHENTICATED USER DATA
@@ -38,6 +39,25 @@ class UserController {
         "lastName",
         "email",
       );
+
+      // Process the photo if the middleware put it in buffer
+      if (req.file) {
+        // upload the photo to 'users' folder in cloudinary
+        const result = await CloudinaryService.uploadStream(
+          req.file.buffer,
+          "users",
+        );
+
+        // Store the url and the id of the photo in the DB
+        filteredBody.photo = result.secure_url;
+        filteredBody.photoPublicId = result.public_id;
+
+        // To save some space in cloudinary remove the past photo if exist
+        // so this the id the old one (from DB) before save the new one
+        if (req.user.photoPublicId) {
+          await CloudinaryService.deleteImage(req.user.photoPublicId);
+        }
+      }
 
       // Apply the service logic with those allowed fields
       const updatedUser = await userService.updateUserData(

@@ -5,7 +5,7 @@ class UserService {
   // UPDATE THE USER DATA
   async updateUserData(userId: string, updateData: any) {
     const updatedUser = await UserModel.findByIdAndUpdate(userId, updateData, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     });
 
