@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { doctorService } from "../../application/services/DoctorService";
 import { catchAsync } from "../../../../core/utils/catchAsync";
 import { filterObj } from "../../../../core/utils/filterObject";
+import { AppError } from "../../../../core/errors/AppError";
 
 export class DoctorController {
   // GET THE CURRENT AUTHENTICATED DOCTOR
@@ -64,6 +65,26 @@ export class DoctorController {
       res.status(200).json({
         status: "success",
         data: { doctor },
+      });
+    },
+  );
+
+  // UPLOAD DOCTOR CERTIFICATES
+  uploadDocs = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      if (!req.body.processedImages || req.body.processedImages.length === 0) {
+        return next(new AppError("Please upload at least one document", 400));
+      }
+
+      const updatedProfile = await doctorService.uploadCertificates(
+        req.user.id,
+        req.body.processedImages,
+      );
+
+      res.status(200).json({
+        status: "success",
+        message: "Documents uploaded successfully. Waiting for admin review.",
+        data: { profile: updatedProfile },
       });
     },
   );

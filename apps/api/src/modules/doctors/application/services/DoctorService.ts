@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { DoctorProfileModel } from "../../infrastructure/models/DoctorModel";
 import { IDoctorProfile } from "../../domain/entities/IDoctorProfile";
 import { AppError } from "../../../../core/errors/AppError";
+import { CloudinaryService } from "../../../../core/services/CloudinaryService";
 
 class DoctorService {
   // CREATE A NEW DOCTOR PROFILE
@@ -69,6 +70,27 @@ class DoctorService {
       throw new AppError("There's no doctor link with this ID", 404);
     }
     return doctor;
+  }
+
+  // UPLOAD A DOCTOR DOCUMENTS
+  async uploadCertificates(doctorId: string, buffers: Buffer[]) {
+    const uploadPromises = buffers.map((buffer) =>
+      CloudinaryService.uploadStream(buffer, "doctors/certificates"),
+    );
+
+    const cloudinaryResults = await Promise.all(uploadPromises);
+
+    const newDocs = cloudinaryResults.map((res) => ({
+      name: "Medical Doc",
+      url: res.secure_url,
+      publicId: res.public_id,
+    }));
+
+    return await DoctorProfileModel.findOneAndUpdate(
+      { userId: doctorId },
+      { $push: { documents: { $each: newDocs } } },
+      { returnDocument: "after", runValidators: true },
+    );
   }
 }
 

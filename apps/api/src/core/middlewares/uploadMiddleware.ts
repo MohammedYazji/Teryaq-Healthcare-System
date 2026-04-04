@@ -40,3 +40,33 @@ export const resizeImage = (width: number, height: number) =>
 
     next();
   });
+
+///////// SAME LOGIC FOR ARRAY OF IMAGES (FOR DOCTOR DOCUMENTS) /////////
+
+// Middleware to receive 5 images maximum - as default
+export const uploadMultipleImages = (fieldName: string, maxCount: number = 5) =>
+  upload.array(fieldName, maxCount);
+
+// Middleware to process the image (Resize & Format) using "sharp"
+export const resizeMultipleImages = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.files || !(req.files as any).length) return next();
+
+    req.body.processedImages = [];
+
+    const resizePromises = (req.files as Express.Multer.File[]).map(
+      async (file) => {
+        const buffer = await sharp(file.buffer)
+          .resize(800, 800) // larger to be more clear
+          .toFormat("jpeg")
+          .jpeg({ quality: 90 })
+          .toBuffer();
+
+        return buffer;
+      },
+    );
+
+    req.body.processedImages = await Promise.all(resizePromises);
+    next();
+  },
+);
