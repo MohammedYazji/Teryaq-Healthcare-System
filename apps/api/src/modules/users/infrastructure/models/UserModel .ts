@@ -60,6 +60,8 @@ const UserSchema: Schema<IUserDocument> = new Schema(
       enum: ["active", "suspended", "pending"],
       default: "pending",
     },
+    accountActivationToken: String,
+    accountActivationExpires: Date,
     passwordResetToken: { type: String },
     passwordResetExpires: { type: Date },
 
@@ -100,6 +102,22 @@ UserSchema.methods.comparePassword = async function (
   candidatePassword: string,
 ): Promise<boolean> {
   return await bcrypt.compare(candidatePassword, this.password);
+};
+
+// GENERATE A TOKEN FOR ACTIVATE THE ACCOUNT
+UserSchema.methods.generateActivationToken = function () {
+  const activationToken = crypto.randomBytes(32).toString("hex");
+
+  // ENCRYPT ACTIVATION TOKEN & SAVE IT IN DB
+  this.accountActivationToken = crypto
+    .createHash("sha256")
+    .update(activationToken)
+    .digest("hex");
+
+  // MAKE THE TOKEN EXPIRE IN 24H
+  this.accountActivationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+  return activationToken;
 };
 
 // GENERATE RESET TOKEN

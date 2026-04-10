@@ -36,6 +36,25 @@ export class Email {
     await this.newTransport().sendMail(mailOptions);
   }
 
+  async sendActivationToken(url: string, firstName: string) {
+    const subject = "Welcome to Teryaq - Activate Your Account";
+    const message = `
+    Hello ${firstName},
+
+    Welcome to Teryaq! We are excited to have you with us.
+    To start booking appointments and accessing our healthcare services, please activate your account by clicking the link below:
+
+    ${url}
+
+    This link is valid for 24 hours. If you did not create an account, please ignore this email.
+
+    Stay healthy,
+    Teryaq Team
+    `;
+
+    await this.send(subject, message);
+  }
+
   async sendPasswordReset(url: string) {
     const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${url}.\nIf you didn't forget your password, please ignore this email!`;
     await this.send(

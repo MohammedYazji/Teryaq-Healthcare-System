@@ -13,7 +13,11 @@ export class AuthController {
   // SIGNUP CONTROLLER
   signup = catchAsync(async (req: Request, res: Response) => {
     // CALL AUTH SERVICE SIGNUP METHOD THEN RETURN THE RESULT
-    const result = await this.authService.signup(req.body);
+    const result = await this.authService.signup(
+      req.body,
+      req.protocol,
+      req.get("host") as string,
+    );
 
     res.status(201).json({
       status: "success",
@@ -37,6 +41,20 @@ export class AuthController {
       },
     });
   });
+
+  // ACTIVATE ACCOUNT
+  activateAccount = catchAsync(
+    async (req: Request, res: Response): Promise<void> => {
+      const token = req.params.token as string;
+
+      await this.authService.activateAccount(token);
+
+      res.status(200).json({
+        status: "success",
+        message: "Your account is now active! You can use all features.",
+      });
+    },
+  );
 
   // UPDATE PASSWORD CONTROLLER
   updatePassword = catchAsync(

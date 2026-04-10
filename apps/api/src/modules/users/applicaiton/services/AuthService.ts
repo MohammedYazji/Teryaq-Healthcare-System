@@ -18,7 +18,7 @@ export class AuthService {
   }
 
   // SIGNUP
-  async signup(paylod: any) {
+  async signup(paylod: any, protocol: string, host: string) {
     // TO ENSURE IMPLEMENT ALL STEPS OR CANCEL THE TRANSACTION
     // WE NEED TO START A TRANSACTION
     const session = await mongoose.startSession();
@@ -30,6 +30,9 @@ export class AuthService {
 
       // MAKE THE MAIN USER
       const [newUser] = await UserModel.create([userData], { session });
+
+      // GENERATE ACTIVATION TOKEN
+      const activationToken = newUser.generateActivationToken();
 
       // CREATE PROFILE BASED ON USER ROLE
       let profileId;
@@ -56,12 +59,28 @@ export class AuthService {
           session,
         );
       }
+
       // SAVE THE USER
       await newUser.save({ session });
 
       // COMMIT THE TRANSACTION
       await session.commitTransaction();
       session.endSession();
+
+      // AFTER COMMIT THE TRANSACTION SEND ACTIVATION EMAIL
+      // TO NOT DELAYED THE RESPONSE
+      try {
+        const activationURL = `${protocol}://${host}/api/v1/auth/activate/${activationToken}`;
+        await new Email(newUser).sendActivationToken(
+          activationURL,
+          newUser.firstName,
+        );
+      } catch (error) {
+        console.error(
+          "Email failed to send. Please contact support to activate your account.",
+          error,
+        );
+      }
 
       // GENERATE TOKEN & SEND DATA WITHOUT PASSWORD
       const token = this.generateToken(newUser._id.toString());
@@ -71,6 +90,7 @@ export class AuthService {
       return {
         status: "success",
         token,
+        message: "Account created! Please check your email to activate.",
         data: { user: newUser },
       };
     } catch (error: any) {
@@ -116,6 +136,35 @@ export class AuthService {
       status: "success",
       token,
       data: { user },
+    };
+  }
+
+  // ACTIVATE ACCOUNT
+  async activateAccount(token: string) {
+    // HASH THE TOKEN TO COMPARE WITH ONE IN THE DB
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    // UN-FILTER THE SUSPENDED ACCOUNTS TO CAN ACTIVATE THEM
+    const user = await UserModel.findOne({
+      accountActivationToken: hashedToken,
+      accountActivationExpires: { $gt: new Date() },
+    }).setOptions({ unfiltered: true });
+
+    if (!user) {
+      throw new AppError("Token is invalid or has expired", 400);
+    }
+
+    // ACTIVATE THE ACCOUNT AND REMOVE THR TOKEN INFORMATION
+    user.status = "active";
+    user.accountActivationToken = undefined;
+    user.accountActivationExpires = undefined;
+
+    // PREVENT VALIDATION FOR PASSWORD WHEN SAVE
+    await user.save({ validateBeforeSave: false });
+
+    return {
+      status: "success",
+      message: "Account activated successfully!",
     };
   }
 

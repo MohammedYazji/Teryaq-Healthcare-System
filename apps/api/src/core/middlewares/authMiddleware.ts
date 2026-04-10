@@ -25,7 +25,9 @@ export const protect = catchAsync(
     const decoded: any = jwt.verify(token, config.JWT_SECRET as string);
 
     // ENSURE THE USER STILL EXISTS
-    const currentUser = await UserModel.findById(decoded.id);
+    const currentUser = await UserModel.findById(decoded.id).setOptions({
+      unfiltered: true,
+    });
 
     if (!currentUser) {
       return next(

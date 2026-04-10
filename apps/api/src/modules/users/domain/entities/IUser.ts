@@ -14,10 +14,13 @@ export interface IUser {
   photo?: string;
   photoPublicId?: string; // To can delete it in future
   status: UserStatus;
+  accountActivationToken?: string;
+  accountActivationExpires?: Date;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
 
   // METHODS
+  generateActivationToken(): string;
   generatePasswordResetToken(): string;
   comparePassword(password: string): Promise<boolean>;
 
