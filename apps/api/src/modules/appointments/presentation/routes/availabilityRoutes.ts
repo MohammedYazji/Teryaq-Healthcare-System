@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { AvailabilityController } from "../controllers/AvailabilityController";
 import {
+  isActive,
   protect,
   restrictTo,
 } from "../../../../core/middlewares/authMiddleware";
@@ -16,6 +17,7 @@ router.use(protect);
 router.patch(
   "/setBulk",
   restrictTo("doctor"),
+  isActive,
   AvailabilityController.createBulkSlots,
 );
 router.get(

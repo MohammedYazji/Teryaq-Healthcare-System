@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { ReviewController } from "../controllers/ReviewController";
 import {
+  isActive,
   protect,
   restrictTo,
 } from "../../../../core/middlewares/authMiddleware";
@@ -13,6 +14,11 @@ router.get("/doctor/:doctorId", ReviewController.getDoctorReviews);
 // AUTHENTICATED ROUTES
 router.use(protect);
 
-router.post("/", restrictTo("patient"), ReviewController.createReview);
+router.post(
+  "/",
+  restrictTo("patient"),
+  isActive,
+  ReviewController.createReview,
+);
 
 export { router as reviewRouter };

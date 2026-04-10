@@ -1,6 +1,7 @@
 import express from "express";
 import { patientController } from "../controllers/PatientController";
 import {
+  isActive,
   protect,
   restrictTo,
 } from "../../../../core/middlewares/authMiddleware";
@@ -11,6 +12,11 @@ const router = express.Router();
 router.use(protect);
 
 router.get("/me", restrictTo("patient"), patientController.getMe);
-router.patch("/updateMe", restrictTo("patient"), patientController.updateMe);
+router.patch(
+  "/updateMe",
+  isActive,
+  restrictTo("patient"),
+  patientController.updateMe,
+);
 
 export { router as patientRoutes };
