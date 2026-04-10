@@ -70,6 +70,31 @@ export class AdminController {
     });
   });
 
+  // UPDATE THE USER ROLE (ADMIN, PATIENT, DOCTOR)
+  updateUserRole = catchAsync(
+    async (req: Request, res: Response): Promise<void> => {
+      const { userId } = req.params;
+      const { role } = req.body;
+
+      // Check the role if is it valid one
+      const validRoles = ["admin", "doctor", "patient"];
+      if (!role || !validRoles.includes(role)) {
+        throw new AppError(
+          `Please provide a valid role: ${validRoles.join(", ")}`,
+          400,
+        );
+      }
+
+      const user = await adminService.updateUserRole(userId as string, role);
+
+      res.status(200).json({
+        status: "success",
+        message: `User role updated successfully to ${role}`,
+        data: { user },
+      });
+    },
+  );
+
   // GET THE ADMIN STATS FOR DASHBOARD
   getStats = catchAsync(async (req: Request, res: Response): Promise<void> => {
     const stats = await adminService.getDashboardStats();

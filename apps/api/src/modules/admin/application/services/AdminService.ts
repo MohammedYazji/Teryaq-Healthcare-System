@@ -66,6 +66,21 @@ export class AdminService {
     return user;
   }
 
+  // UPDATE USER ROLE
+  async updateUserRole(userId: string, role: "admin" | "doctor" | "patient") {
+    const user = await UserModel.findByIdAndUpdate(
+      userId,
+      { role },
+      { returnDocument: "after", runValidators: true },
+    ).setOptions({ unfiltered: true });
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    return user;
+  }
+
   /// STATISTICS ///
   // Fetch the stats for the admin dashboard
   async getDashboardStats() {
