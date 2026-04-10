@@ -44,6 +44,32 @@ export class AdminController {
     },
   );
 
+  // FETCH ALL USERS (ALLOW SEARCHING ON SPECIFIC USER)
+  getAllUsers = catchAsync(async (req: Request, res: Response) => {
+    const { search } = req.query;
+    const users = await adminService.getAllUsers(search as string);
+
+    res.status(200).json({
+      status: "success",
+      results: users.length,
+      data: { users },
+    });
+  });
+
+  // UPDATE THE USER STATUS VIA ADMIN
+  updateUserStatus = catchAsync(async (req: Request, res: Response) => {
+    const { userId } = req.params;
+    const { status } = req.body;
+
+    const user = await adminService.updateUserStatus(userId as string, status);
+
+    res.status(200).json({
+      status: "success",
+      message: `User status updated to ${status}`,
+      data: { user },
+    });
+  });
+
   // GET THE ADMIN STATS FOR DASHBOARD
   getStats = catchAsync(async (req: Request, res: Response): Promise<void> => {
     const stats = await adminService.getDashboardStats();

@@ -3,8 +3,10 @@ import { AppointmentModel } from "../../../appointments/infrastructure/models/Ap
 import { DoctorProfileModel } from "../../../doctors/infrastructure/models/DoctorModel";
 import { PatientProfileModel } from "../../../patients/infrastructure/models/PatientModel";
 import { SpecializationModel } from "../../../specializations/infrastructure/models/SpecializationModel";
+import { UserModel } from "../../../users/infrastructure/models/UserModel ";
 
 export class AdminService {
+  /// DOCTOR_MANAGEMENT ///
   // Fetch all doctors wait verification their accounts & Have documents to review
   async getPendingDoctors() {
     return await DoctorProfileModel.find({
@@ -28,6 +30,43 @@ export class AdminService {
     return doctor;
   }
 
+  /// USER_MANAGEMENT ///
+  // FETCH ALL USERS (PATIENTS & DOCTORS) CAN ALSO FETCH BASED ON SEARCH (FIRSTNAME, LASTNAME, EMAIL)
+  async getAllUsers(searchTerm?: string) {
+    let query: any = {};
+
+    if (searchTerm) {
+      query.$or = [
+        { firstName: { $regex: searchTerm, $options: "i" } },
+        { lastName: { $regex: searchTerm, $options: "i" } },
+        { email: { $regex: searchTerm, $options: "i" } },
+      ];
+    }
+
+    return await UserModel.find(query)
+      .setOptions({ unfiltered: true }) // Pass the middleware (in the user model) and get the suspended users too
+      .select("-password");
+  }
+
+  // UPDATE USER STATUS
+  async updateUserStatus(
+    userId: string,
+    status: "active" | "suspended" | "pending",
+  ) {
+    const user = await UserModel.findByIdAndUpdate(
+      userId,
+      { status },
+      { returnDocument: "after", runValidators: true },
+    ).setOptions({ unfiltered: true });
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    return user;
+  }
+
+  /// STATISTICS ///
   // Fetch the stats for the admin dashboard
   async getDashboardStats() {
     const [

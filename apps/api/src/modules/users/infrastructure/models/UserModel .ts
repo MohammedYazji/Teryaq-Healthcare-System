@@ -127,8 +127,13 @@ export const UserModel: Model<IUserDocument> = mongoose.model<IUserDocument>(
 // MIDDLEWARE TO IGNORE ALL INACTIVE USERS
 // JUST RETURN THE ACTIVE USER WHEN USE (FIND, FindOne)
 UserSchema.pre(/^find/, function (this: Query<any, any>) {
+  // Just for admin getAllUsers we pass unfiltered
+  // to pass this middleware and return all users include the suspended users
+  if (this.getOptions().unfiltered) {
+    return;
+  }
+
   // this refer to the current query
-  (this as any).find({
-    status: { $ne: "suspended" },
-  });
+  // by default prevent return suspended users
+  this.find({ status: { $ne: "suspended" } });
 });
