@@ -11,6 +11,8 @@ const router = Router();
 router.use(protect);
 router.use(restrictTo("admin"));
 
+router.get("/stats", adminController.getStats);
+
 router.get("/pending-doctors", adminController.getPendingDoctors);
 router.patch("/verify-doctor/:doctorId", adminController.verifyDoctor);
 

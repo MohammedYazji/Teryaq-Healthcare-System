@@ -43,6 +43,16 @@ export class AdminController {
       });
     },
   );
+
+  // GET THE ADMIN STATS FOR DASHBOARD
+  getStats = catchAsync(async (req: Request, res: Response): Promise<void> => {
+    const stats = await adminService.getDashboardStats();
+
+    res.status(200).json({
+      status: "success",
+      data: { stats },
+    });
+  });
 }
 
 export const adminController = new AdminController();
