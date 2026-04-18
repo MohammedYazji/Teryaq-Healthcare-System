@@ -35,29 +35,30 @@ export class AuthService {
       const activationToken = newUser.generateActivationToken();
 
       // CREATE PROFILE BASED ON USER ROLE
-      let profileId;
       if (newUser.role === "doctor") {
         if (!doctorInfo)
           throw new AppError("doctor information is required", 400);
 
-        await doctorService.createProfile(
+        const profile = await doctorService.createProfile(
           {
             userId: newUser._id as mongoose.Types.ObjectId,
             ...doctorInfo,
           },
           session,
         );
+        newUser.doctorProfileId = profile._id.toString();
       } else if (newUser.role === "patient") {
         if (!patientInfo)
           throw new AppError("patient information is required", 400);
 
-        await patientService.createProfile(
+        const profile = await patientService.createProfile(
           {
             userId: newUser._id as mongoose.Types.ObjectId,
             ...patientInfo,
           },
           session,
         );
+        newUser.patientProfileId = profile._id.toString();
       }
 
       // SAVE THE USER
