@@ -21,6 +21,7 @@ export class PaymentService {
       success_url: `${config.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${config.FRONTEND_URL}/payment-cancelled`,
       customer_email: user.email,
+      // I will send this Id of the appointment with the stripe session, so then when return i will check the this appointment info in the database (check confirmPayment & handleExpiredSession)
       client_reference_id: appointmentId, // to link the payment with the appointment in the webhooks
       line_items: [
         {
@@ -48,12 +49,35 @@ export class PaymentService {
   async confirmPayment(session: any) {
     const appointmentId = session.client_reference_id;
 
-    await AppointmentModel.findByIdAndUpdate(appointmentId, {
-      isPaid: true,
-      paymentStatus: "paid",
-      status: "scheduled", // From Pending to scheduled
-    });
+    const appointment = await AppointmentModel.findById(appointmentId);
+
+    if (!appointment || appointment.isPaid) {
+      console.log(
+        `Appointment ${appointmentId} is already confirmed or not found.`,
+      );
+      return;
+    }
+
+    appointment.isPaid = true;
+    appointment.paymentStatus = "paid";
+    appointment.status = "scheduled";
+
+    await appointment.save();
 
     console.log(`Appointment ${appointmentId} has been paid and confirmed`);
+  }
+
+  // HANDLE THE FAILURE IN PAY
+  async handleExpiredSession(session: any) {
+    const appointmentId = session.client_reference_id;
+
+    await AppointmentModel.findOneAndUpdate(appointmentId, {
+      paymentStatus: "unpaid",
+      status: "cancelled",
+    });
+
+    console.log(
+      `Session expired for appointment ${appointmentId}. Slot released.`,
+    );
   }
 }

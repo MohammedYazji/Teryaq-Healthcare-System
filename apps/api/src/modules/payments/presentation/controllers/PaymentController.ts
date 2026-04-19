@@ -49,6 +49,11 @@ export class PaymentController {
       await paymentService.confirmPayment(session);
     }
 
+    if (event.type === "checkout.session.expired") {
+      const session = event.data.object as any;
+      await paymentService.handleExpiredSession(session);
+    }
+
     res.status(200).json({ received: true });
   });
 }
