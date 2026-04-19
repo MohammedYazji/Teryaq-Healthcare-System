@@ -14,6 +14,8 @@ import { appointmentRoutes } from "./modules/appointments/presentation/routes/ap
 import { medicalRecordRouter } from "./modules/medicalRecords/presentation/routes/MedicalRecordRoutes";
 import { reviewRouter } from "./modules/reviews/presentation/routes/ReviewRoutes";
 import { adminRoutes } from "./modules/admin/presentation/routes/adminRoutes";
+import { PaymentController } from "./modules/payments/presentation/controllers/PaymentController";
+import { paymentRoutes } from "./modules/payments/presentation/routes/paymentRoutes";
 
 const bootstrap = async () => {
   // SETUP EXPRESS
@@ -21,6 +23,13 @@ const bootstrap = async () => {
 
   // CONNECT TO MONGODB
   await connectDB();
+
+  // Webhook wont use express.json (so put it first)
+  app.post(
+    "/api/v1/payments/webhook",
+    express.raw({ type: "application/json" }),
+    PaymentController.handleWebhook,
+  );
 
   // USE MIDDLEWARES
   app.use(express.json());
@@ -37,6 +46,7 @@ const bootstrap = async () => {
   app.use("/api/v1/medical-record", medicalRecordRouter);
   app.use("/api/v1/reviews", reviewRouter);
   app.use("/api/v1/admin", adminRoutes);
+  app.use("/api/v1/payment", paymentRoutes);
 
   // HANDLE UNHANDLED ROUTES
   app.use((req: Request, res: Response, next: NextFunction) => {

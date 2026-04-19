@@ -12,7 +12,7 @@ export type AppointmentStatus =
 export interface IAppointment {
   id?: string;
   patientId: mongoose.Types.ObjectId;
-  doctorId: mongoose.Types.ObjectId;
+  doctorId: mongoose.Types.ObjectId | any;
   slotId: mongoose.Types.ObjectId;
   appointmentDate: Date;
   appointmentTime: string; // SNAPSHOT (COPY FROM THE TIME)
@@ -21,4 +21,7 @@ export interface IAppointment {
   cancellationReason?: string; // Reason for cancellation (Logistics)
   notes?: string; // Doctor's medical notes (Clinical)
   fee: number;
+  isPaid: boolean;
+  paymentStatus: "unpaid" | "paid" | "failed" | "refunded";
+  stripeSessionId?: string;
 }

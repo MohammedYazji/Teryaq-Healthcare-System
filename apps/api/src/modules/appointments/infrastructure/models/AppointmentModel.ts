@@ -53,6 +53,13 @@ const AppointmentSchema = new Schema<IAppointmentDocument>(
       type: Number,
       required: true,
     },
+    isPaid: { type: Boolean, default: false },
+    paymentStatus: {
+      type: String,
+      enum: ["unpaid", "paid", "failed", "refunded"],
+      default: "unpaid",
+    },
+    stripeSessionId: String,
   },
   { timestamps: true },
 );

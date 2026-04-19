@@ -19,6 +19,9 @@ export const config = {
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+  FRONTEND_URL: process.env.FRONTEND_URL?.trim() || "http://localhost:3000",
 };
 
 if (!config.MONGO_URI) {
@@ -35,4 +38,8 @@ if (
   !config.CLOUDINARY_API_SECRET
 ) {
   throw new AppError("Cloudinary configurations are missing", 500);
+}
+
+if (!config.STRIPE_SECRET_KEY || !config.STRIPE_WEBHOOK_SECRET) {
+  throw new AppError("Stripe configurations are missing", 500);
 }
