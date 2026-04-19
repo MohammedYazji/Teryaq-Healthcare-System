@@ -17,6 +17,9 @@ import { adminRoutes } from "./modules/admin/presentation/routes/adminRoutes";
 import { PaymentController } from "./modules/payments/presentation/controllers/PaymentController";
 import { paymentRoutes } from "./modules/payments/presentation/routes/paymentRoutes";
 
+import dns from "node:dns";
+dns.setDefaultResultOrder("ipv4first");
+
 const bootstrap = async () => {
   // SETUP EXPRESS
   const app = express();

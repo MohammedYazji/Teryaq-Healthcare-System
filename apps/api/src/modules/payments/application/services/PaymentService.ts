@@ -2,6 +2,7 @@ import Stripe from "stripe";
 import { config } from "../../../../config/env";
 import { AppointmentModel } from "../../../appointments/infrastructure/models/AppointmentModel";
 import { AppError } from "../../../../core/errors/AppError";
+import { Email } from "../../../../core/utils/email";
 
 const stripe = new Stripe(config.STRIPE_SECRET_KEY as string, {});
 
@@ -49,7 +50,9 @@ export class PaymentService {
   async confirmPayment(session: any) {
     const appointmentId = session.client_reference_id;
 
-    const appointment = await AppointmentModel.findById(appointmentId);
+    const appointment = (await AppointmentModel.findById(appointmentId)
+      .populate({ path: "patientId", populate: { path: "userId" } })
+      .populate({ path: "doctorId", populate: { path: "userId" } })) as any;
 
     if (!appointment || appointment.isPaid) {
       console.log(
@@ -61,17 +64,36 @@ export class PaymentService {
     appointment.isPaid = true;
     appointment.paymentStatus = "paid";
     appointment.status = "scheduled";
-
     await appointment.save();
 
-    console.log(`Appointment ${appointmentId} has been paid and confirmed`);
+    // Send email to the user
+    try {
+      const email = new Email(appointment.patientId.userId);
+
+      const doctorFullName = `Dr. ${appointment.doctorId.userId.firstName} ${appointment.doctorId.userId.lastName}`;
+      const appointmentDate = appointment.appointmentDate.toDateString();
+      const appointmentTime = appointment.appointmentTime;
+
+      await email.sendAppointmentConfirmed(
+        doctorFullName,
+        appointmentDate,
+        appointmentTime,
+      );
+
+      console.log(`Appointment ${appointmentId} has been paid and confirmed`);
+      console.log(
+        `Confirmation email sent to patient: ${appointment.patientId.userId.email}`,
+      );
+    } catch (error) {
+      console.error("Email sending failed:", error);
+    }
   }
 
   // HANDLE THE FAILURE IN PAY
   async handleExpiredSession(session: any) {
     const appointmentId = session.client_reference_id;
 
-    await AppointmentModel.findOneAndUpdate(appointmentId, {
+    await AppointmentModel.findByIdAndUpdate(appointmentId, {
       paymentStatus: "unpaid",
       status: "cancelled",
     });
