@@ -2,6 +2,8 @@
  * Devices don't know each other so we need this file to link the patient device with the doctor
  */
 import { Server, Socket } from "socket.io";
+import { AuthService } from "../../modules/users/applicaiton/services/AuthService";
+import { AppointmentModel } from "../../modules/appointments/infrastructure/models/AppointmentModel";
 
 export class SocketService {
   // Singleton: ensure we have just one instance from socketServer
@@ -16,9 +18,27 @@ export class SocketService {
       },
     });
 
-    this.io.on("connection", (socket: Socket) => {
-      console.log(`User connected: ${socket.id}`);
+    // AUTHENTICATION MIDDLEWARE
+    // THERE IS NO ANY CONNECTIONS WILL PASS WITHOUT TOKEN
+    this.io.use(async (socket, next) => {
+      const token = socket.handshake.auth.token;
 
+      if (!token)
+        return next(new Error("Authentication error: No token provided"));
+
+      try {
+        const decoded = await AuthService.verifyToken(token);
+        socket.data.user = decoded; // Save the user data into the socket to use later
+        next();
+      } catch (err) {
+        next(new Error("Authentication error: Invalid token"));
+      }
+    });
+
+    this.io.on("connection", (socket: Socket) => {
+      console.log(
+        `Authenticated user connected: ${socket.id} (User: ${socket.data.user.id})`,
+      );
       // Listeners
       this.handleSignaling(socket);
 
@@ -32,9 +52,16 @@ export class SocketService {
     // 1. Join in the Appointment Room (Signaling Room)
     // when patient and doctor share same appointment id
     // we add them in private room
-    socket.on("join-appointment", (appointmentId: string) => {
-      socket.join(appointmentId);
-      console.log(`User ${socket.id} joined room: ${appointmentId}`);
+    socket.on("join-appointment", async (appointmentId: string) => {
+      const appointment = await AppointmentModel.findById(appointmentId);
+
+      if (appointment && appointment.status === "scheduled") {
+        socket.join(appointmentId);
+        socket.emit("joined-successfully", { roomId: appointmentId });
+        console.log(`User ${socket.id} joined room: ${appointmentId}`);
+      } else {
+        socket.emit("error", "This appointment is not active yet.");
+      }
     });
 
     // 2. Send the WebRTC Offer from Dr to Patient or the  opposite

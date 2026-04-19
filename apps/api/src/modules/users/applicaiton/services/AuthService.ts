@@ -17,6 +17,16 @@ export class AuthService {
     return jwt.sign({ id }, secret, { expiresIn });
   }
 
+  // Verify a token is valid one
+  public static async verifyToken(token: string) {
+    return new Promise((resolve, reject) => {
+      jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
+        if (err) return reject(err);
+        resolve(decoded);
+      });
+    });
+  }
+
   // SIGNUP
   async signup(paylod: any, protocol: string, host: string) {
     // TO ENSURE IMPLEMENT ALL STEPS OR CANCEL THE TRANSACTION
