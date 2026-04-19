@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
+import http from "http";
 import { config } from "./config/env";
 import { connectDB } from "./config/database";
 import { globalErrorHandler } from "./core/middlewares/errorMiddleware";
@@ -16,6 +17,7 @@ import { reviewRouter } from "./modules/reviews/presentation/routes/ReviewRoutes
 import { adminRoutes } from "./modules/admin/presentation/routes/adminRoutes";
 import { PaymentController } from "./modules/payments/presentation/controllers/PaymentController";
 import { paymentRoutes } from "./modules/payments/presentation/routes/paymentRoutes";
+import { SocketService } from "./core/utils/SocketService";
 
 import dns from "node:dns";
 dns.setDefaultResultOrder("ipv4first");
@@ -24,8 +26,14 @@ const bootstrap = async () => {
   // SETUP EXPRESS
   const app = express();
 
+  // Create HTTP Server then link it with express
+  const server = http.createServer(app);
+
   // CONNECT TO MONGODB
   await connectDB();
+
+  // INITIALIZE SOCKET SERVER
+  SocketService.init(server);
 
   // Webhook wont use express.json (so put it first)
   app.post(
@@ -60,8 +68,9 @@ const bootstrap = async () => {
   app.use(globalErrorHandler);
 
   // START SERVER
-  app.listen(config.PORT, () => {
+  server.listen(config.PORT, () => {
     console.log(`Server listening on port: ${config.PORT}`);
+    console.log(`Socket.io signaling service is ready`);
   });
 };
 bootstrap();
