@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { AuthService } from "../../applicaiton/services/AuthService";
+import { AuthService } from "../../application/services/AuthService";
 import { catchAsync } from "../../../../core/utils/catchAsync";
 
 export class AuthController {

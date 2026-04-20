@@ -2,7 +2,7 @@ import { filterObj } from "./../../../../core/utils/filterObject";
 import { Request, Response, NextFunction } from "express";
 import { catchAsync } from "../../../../core/utils/catchAsync";
 import { AppError } from "../../../../core/errors/AppError";
-import { userService } from "../../applicaiton/services/UserService";
+import { userService } from "../../application/services/UserService";
 import { CloudinaryService } from "../../../../core/services/CloudinaryService";
 
 class UserController {

@@ -2,7 +2,7 @@
  * Devices don't know each other so we need this file to link the patient device with the doctor
  */
 import { Server, Socket } from "socket.io";
-import { AuthService } from "../../modules/users/applicaiton/services/AuthService";
+import { AuthService } from "../../modules/users/application/services/AuthService";
 import { AppointmentModel } from "../../modules/appointments/infrastructure/models/AppointmentModel";
 
 export class SocketService {

@@ -211,7 +211,7 @@ export class AuthService {
   }
 
   // FORGOT PASSWORD
-  async forgotPassword(email: string, protocl: string, host: string) {
+  async forgotPassword(email: string, protocol: string, host: string) {
     // GET THE USER BY EMAIL
     const user = await UserModel.findOne({ email });
     if (!user) {
@@ -224,7 +224,7 @@ export class AuthService {
 
     // SEND THE RESET TOKEN TO THE USER EMAIL
     try {
-      const resetURL = `${protocl}://${host}/api/v1/users/resetPassword/${resetToken}`;
+      const resetURL = `${protocol}://${host}/api/v1/users/resetPassword/${resetToken}`;
 
       await new Email(user).sendPasswordReset(resetURL);
 
