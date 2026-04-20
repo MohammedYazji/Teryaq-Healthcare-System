@@ -136,12 +136,6 @@ UserSchema.methods.generatePasswordResetToken = function () {
   return resetToken;
 };
 
-// NOW USER MODEL IS IUSER (TO MAKE TYPE CHECKING) AND DOCUMENT (TO MAKE MONGODB OPERATIONS)
-export const UserModel: Model<IUserDocument> = mongoose.model<IUserDocument>(
-  "User",
-  UserSchema,
-);
-
 // MIDDLEWARE TO IGNORE ALL INACTIVE USERS
 // JUST RETURN THE ACTIVE USER WHEN USE (FIND, FindOne)
 UserSchema.pre(/^find/, function (this: Query<any, any>) {
@@ -155,3 +149,9 @@ UserSchema.pre(/^find/, function (this: Query<any, any>) {
   // by default prevent return suspended users
   this.find({ status: { $ne: "suspended" } });
 });
+
+// NOW USER MODEL IS IUSER (TO MAKE TYPE CHECKING) AND DOCUMENT (TO MAKE MONGODB OPERATIONS)
+export const UserModel: Model<IUserDocument> = mongoose.model<IUserDocument>(
+  "User",
+  UserSchema,
+);
