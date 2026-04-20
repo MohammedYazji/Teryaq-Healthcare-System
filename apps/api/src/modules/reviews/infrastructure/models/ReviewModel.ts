@@ -56,7 +56,7 @@ ReviewSchema.statics.calcAverageRatings = async function (
   // UPDATE THE PROFILE WITH THE NEW RESULTS
   const DoctorProfile = mongoose.model("DoctorProfile");
   if (stats.length > 0) {
-    await DoctorProfile.findOneAndUpdate(doctorId, {
+    await DoctorProfile.findByIdAndUpdate(doctorId, {
       numberOfReviews: stats[0].nRating,
       averageRating: Math.round(stats[0].avgRating * 10) / 10,
     });
