@@ -12,7 +12,9 @@ export class AdminService {
     return await DoctorProfileModel.find({
       isVerified: false,
       documents: { $exists: true, $not: { $size: 0 } },
-    }).populate("userId", "firstName lastName email photo");
+    })
+      .populate("userId", "firstName lastName email photo")
+      .populate("specialization", "name");
   }
 
   // Verify the doctor account
@@ -21,7 +23,7 @@ export class AdminService {
       doctorId,
       { isVerified },
       { returnDocument: "after", runValidators: true },
-    );
+    ).populate("userId", "firstName lastName email");
 
     if (!doctor) {
       throw new AppError("Doctor profile not found", 404);

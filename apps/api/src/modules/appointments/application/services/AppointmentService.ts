@@ -29,7 +29,10 @@ export class AppointmentService {
     }
 
     // FETCH THE DOCTOR TO GET THE FEE AS SNAPSHOT INSIDE THE APPOINTMENT DOCUMENT
-    const doctor = await DoctorProfileModel.findOne({ _id: slot.doctorId });
+    const doctor = await DoctorProfileModel.findOne({ _id: slot.doctorId }).populate(
+      "userId",
+      "firstName lastName email",
+    );
     if (!doctor) throw new AppError("Doctor not found", 404);
 
     // UPDATE SLOT AVAILABILITY AND CREATE APPOINTMENT
@@ -168,7 +171,10 @@ export class AppointmentService {
         appointment.patientId,
       ).populate("userId");
       const doctorProfile =
-        await DoctorProfileModel.findById(doctorId).populate("userId");
+        await DoctorProfileModel.findById(doctorId).populate(
+          "userId",
+          "firstName lastName",
+        );
       const doctorLastName =
         (doctorProfile?.userId as any)?.lastName || "Doctor";
 

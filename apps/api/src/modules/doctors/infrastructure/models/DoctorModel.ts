@@ -55,18 +55,5 @@ const DoctorSchema = new Schema<IDoctorDocument>(
   { timestamps: true },
 );
 
-// QUERY MIDDLEWARE
-// TO FETCH THE USER AND SPECIALIZATION INFORMATION
-// BESIDE THE DOCTOR INFORMATION
-DoctorSchema.pre(/^find/, function (this: Query<any, any>) {
-  this.populate({
-    path: "userId",
-    select: "firstName lastName email",
-  }).populate({
-    path: "specialization",
-    select: "name",
-  });
-});
-
 export const DoctorProfileModel: Model<IDoctorDocument> =
   mongoose.model<IDoctorDocument>("DoctorProfile", DoctorSchema);
