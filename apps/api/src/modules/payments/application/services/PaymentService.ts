@@ -9,11 +9,21 @@ const stripe = new Stripe(config.STRIPE_SECRET_KEY as string, {});
 export class PaymentService {
   // CREATE A NEW SESSION FOR PAYMENT
   async createCheckoutSession(appointmentId: string, user: any) {
-    // 1. Get the appointment & The Doctor Info
-    const appointment =
-      await AppointmentModel.findById(appointmentId).populate("doctorId");
+    // 1. Get the appointment & The Doctor Info (with nested populate for type safety)
+    const appointment = await AppointmentModel.findById(appointmentId).populate<{
+      doctorId: { userId: { firstName: string; lastName: string }; consultationFee: number };
+    }>({
+      path: "doctorId",
+      populate: { path: "userId", select: "firstName lastName" },
+    });
 
     if (!appointment) throw new AppError("Appointment not found", 404);
+
+    // Safe access after typed populate
+    const doctorUser = appointment.doctorId?.userId;
+    const doctorName = doctorUser
+      ? `Dr. ${doctorUser.firstName} ${doctorUser.lastName}`
+      : "Doctor";
 
     // 2. Create the payment session
     const session = await stripe.checkout.sessions.create({
@@ -30,7 +40,7 @@ export class PaymentService {
             currency: "usd",
             unit_amount: appointment.fee * 100, // Stripe calc in cent
             product_data: {
-              name: `Consultation with Dr. ${appointment.doctorId.userId.firstName}`,
+              name: `Consultation with ${doctorName}`,
               description: "Online medical consultation via Teryaq platform",
             },
           },
