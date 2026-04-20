@@ -44,7 +44,12 @@ const bootstrap = async () => {
 
   // USE MIDDLEWARES
   app.use(express.json());
-  app.use(cors());
+  app.use(
+    cors({
+      origin: config.FRONTEND_URL, // Allow only the frontend
+      credentials: true, // Allow cookies / Authorization headers
+    }),
+  );
 
   // ROUTES
   app.use("/api/v1/auth", authRoutes);
