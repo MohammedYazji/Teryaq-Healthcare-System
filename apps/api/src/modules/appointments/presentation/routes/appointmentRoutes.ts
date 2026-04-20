@@ -5,6 +5,8 @@ import {
   restrictTo,
 } from "../../../../core/middlewares/authMiddleware";
 import { AppointmentController } from "../controllers/AppointmentController";
+import { validate } from "../../../../core/middlewares/validateMiddleware";
+import { bookingSchema } from "../../../../core/utils/validations";
 
 const router = Router();
 
@@ -13,6 +15,7 @@ router.use(protect);
 
 router.post(
   "/book",
+  validate(bookingSchema),
   restrictTo("patient"),
   isActive,
   AppointmentController.bookAppointment,

@@ -8,7 +8,7 @@ export class AppointmentController {
   static bookAppointment = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const patientId = req.user?.patientProfileId as string;
-      const { slotId, reason } = req.body;
+      const { slotId, reason, appointmentDate } = req.body;
       if (!slotId) {
         return next(new AppError("Please provide a slot ID", 400));
       }
@@ -16,6 +16,7 @@ export class AppointmentController {
       const appointment = await AppointmentService.createAppointment(
         patientId,
         slotId,
+        appointmentDate,
         reason,
       );
 

@@ -2,6 +2,8 @@ import { Router } from "express";
 import { AuthController } from "../controllers/AuthController";
 import { protect } from "../../../../core/middlewares/authMiddleware";
 import rateLimit from "express-rate-limit";
+import { validate } from "../../../../core/middlewares/validateMiddleware";
+import { loginSchema, signupSchema } from "../../../../core/utils/validations";
 
 // LIMIT LOGIN ATTEMPTS: 10 per 15 minutes
 const loginLimiter = rateLimit({
@@ -24,8 +26,8 @@ const forgotPasswordLimiter = rateLimit({
 const router = Router();
 const authController = new AuthController();
 
-router.post("/signup", authController.signup);
-router.post("/login", loginLimiter, authController.login);
+router.post("/signup", validate(signupSchema), authController.signup);
+router.post("/login", validate(loginSchema), loginLimiter, authController.login);
 router.get("/activate/:token", authController.activateAccount);
 router.patch("/updateMyPassword", protect, authController.updatePassword);
 router.post("/forgotPassword", forgotPasswordLimiter, authController.forgotPassword);

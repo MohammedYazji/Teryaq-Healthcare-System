@@ -11,6 +11,7 @@ export class AppointmentService {
   static async createAppointment(
     patientId: string,
     slotId: string,
+    appointmentDate: string,
     reason?: string,
   ) {
     // CHECK IF THE SLOT EXISTS
@@ -26,6 +27,15 @@ export class AppointmentService {
         "This slot has already been booked by someone else",
         400,
       );
+    }
+
+    // CHECK IF THE REQUESTED DATE MATCHES THE SLOT DAY
+    const requestedDate = new Date(appointmentDate);
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const requestedDayName = dayNames[requestedDate.getDay()];
+
+    if (requestedDayName !== slot.dayOfWeek) {
+       throw new AppError(`This slot is only available on ${slot.dayOfWeek}s. You provided a ${requestedDayName}.`, 400);
     }
 
     // FETCH THE DOCTOR TO GET THE FEE AS SNAPSHOT INSIDE THE APPOINTMENT DOCUMENT
@@ -44,7 +54,7 @@ export class AppointmentService {
         patientId,
         doctorId: slot.doctorId,
         slotId: slot._id,
-        appointmentDate: new Date(), // TO-DO For now, we use current date; later we'll use actual calendar date
+        appointmentDate: requestedDate, // Passed from request body
         appointmentTime: slot.startTime, // SNAPSHOT from slot
         status: "pending", // Waiting for doctor approval
         reason: reason || "Regular Checkup", // Optional from user input
