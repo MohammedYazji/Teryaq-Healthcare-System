@@ -11,4 +11,6 @@ export interface IAvailabilitySlot {
   startTime: string;
   endTime: string;
   isAvailable: boolean;
+  status: 'available' | 'reserved' | 'booked';
+  reservedUntil: Date | null;
 }

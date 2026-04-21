@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { config } from "../../../../config/env";
 import { AppointmentModel } from "../../../appointments/infrastructure/models/AppointmentModel";
+import { AvailabilityModel } from "../../../appointments/infrastructure/models/AvailabilityModel";
 import { AppError } from "../../../../core/errors/AppError";
 import { Email } from "../../../../core/utils/email";
 
@@ -76,6 +77,13 @@ export class PaymentService {
     appointment.status = "scheduled";
     await appointment.save();
 
+    // 2. Mark the slot as booked
+    await AvailabilityModel.findByIdAndUpdate(appointment.slotId, {
+      status: "booked",
+      isAvailable: false,
+      reservedUntil: null,
+    });
+
     // Send email to the user
     try {
       const email = new Email(appointment.patientId.userId);
@@ -103,10 +111,18 @@ export class PaymentService {
   async handleExpiredSession(session: any) {
     const appointmentId = session.client_reference_id;
 
-    await AppointmentModel.findByIdAndUpdate(appointmentId, {
+    const appointment = await AppointmentModel.findByIdAndUpdate(appointmentId, {
       paymentStatus: "unpaid",
       status: "cancelled",
     });
+
+    if (appointment) {
+      await AvailabilityModel.findByIdAndUpdate(appointment.slotId, {
+        status: "available",
+        isAvailable: true,
+        reservedUntil: null,
+      });
+    }
 
     console.log(
       `Session expired for appointment ${appointmentId}. Slot released.`,

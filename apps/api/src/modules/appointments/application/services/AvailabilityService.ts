@@ -81,7 +81,15 @@ export class AvailabilityService {
     const query: any = { doctorId };
 
     // FILTERED OUT THE BOOKED SLOTS
-    if (onlyAvailable) query.isAvailable = true;
+    if (onlyAvailable) {
+      query.$or = [
+        { isAvailable: true },
+        {
+          status: "reserved",
+          reservedUntil: { $lt: new Date() },
+        },
+      ];
+    }
     // FILTER BY DAY IF PROVIDED
     if (dayOfWeek) query.dayOfWeek = dayOfWeek?.toLowerCase();
 

@@ -68,8 +68,12 @@ const AppointmentSchema = new Schema<IAppointmentDocument>(
 // FOR QUICK SEARCH ABOUT DOCTOR AVAILABLE TIMES IN SPECIFIC DAY
 AppointmentSchema.index({ doctorId: 1, appointmentDate: 1 });
 
-// PREVENT TO MAKE ANOTHER APPOINTMENT FOR THE SAME SLOT AT THE SAME DATE
-AppointmentSchema.index({ slotId: 1, appointmentDate: 1 }, { unique: true });
+// PREVENT TO MAKE ANOTHER APPOINTMENT FOR THE SAME SLOT AT THE SAME DATE (EXCEPT FOR CANCELLED ONES)
+// So if we cancled the appointment or not pay for it (we can book this slot again)
+AppointmentSchema.index(
+  { slotId: 1, appointmentDate: 1 },
+  { unique: true, partialFilterExpression: { status: { $ne: "cancelled" } } }
+);
 
 export const AppointmentModel: Model<IAppointmentDocument> =
   mongoose.model<IAppointmentDocument>("Appointment", AppointmentSchema);

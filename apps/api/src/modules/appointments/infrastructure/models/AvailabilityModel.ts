@@ -28,6 +28,15 @@ const AvailabilitySchema = new Schema<IAvailabilityDocument>(
             type: Boolean,
             default: true,
         },
+        status: {
+            type: String,
+            enum: ['available', 'reserved', 'booked'],
+            default: 'available',
+        },
+        reservedUntil: {
+            type: Date,
+            default: null,
+        },
     },
     { timestamps: true }
 );

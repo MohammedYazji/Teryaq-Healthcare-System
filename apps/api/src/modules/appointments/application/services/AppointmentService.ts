@@ -22,9 +22,13 @@ export class AppointmentService {
     }
 
     // CHECK IF THE SLOT IS STILL AVAILABLE
-    if (!slot.isAvailable) {
+    const isActuallyAvailable = 
+      slot.isAvailable || 
+      (slot.status === "reserved" && slot.reservedUntil && slot.reservedUntil < new Date());
+
+    if (!isActuallyAvailable) {
       throw new AppError(
-        "This slot has already been booked by someone else",
+        "This slot has already been booked or reserved by someone else",
         400,
       );
     }
@@ -34,7 +38,7 @@ export class AppointmentService {
     const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const requestedDayName = dayNames[requestedDate.getDay()];
 
-    if (requestedDayName !== slot.dayOfWeek) {
+    if (requestedDayName.toLowerCase() !== slot.dayOfWeek.toLowerCase()) {
        throw new AppError(`This slot is only available on ${slot.dayOfWeek}s. You provided a ${requestedDayName}.`, 400);
     }
 
@@ -45,8 +49,26 @@ export class AppointmentService {
     );
     if (!doctor) throw new AppError("Doctor not found", 404);
 
+    // IF THE SLOT WAS EXPIRED BUT IS NOW BEING BOOKED BY SOMEONE ELSE
+    // WE SHOULD CANCEL THE OLD PENDING APPOINTMENT TO FREE THE UNIQUE INDEX
+    if (slot.status === "reserved" && slot.reservedUntil && slot.reservedUntil < new Date()) {
+      await AppointmentModel.updateMany(
+         { 
+      slotId: slot._id, 
+      appointmentDate: requestedDate, 
+      status: { $in: ["pending", "pending-payment"] } 
+    },
+    { 
+      status: "cancelled", 
+      cancellationReason: "Reservation expired and slot re-booked" 
+    }
+      );
+    }
+
     // UPDATE SLOT AVAILABILITY AND CREATE APPOINTMENT
     slot.isAvailable = false;
+    slot.status = "reserved";
+    slot.reservedUntil = new Date(Date.now() + 15 * 60 * 1000);
     await slot.save();
 
     try {
@@ -242,11 +264,15 @@ export class AppointmentService {
 
     // Free the old slot
     await AvailabilityModel.findByIdAndUpdate(appointment.slotId, {
+      status: "available",
       isAvailable: true,
+      reservedUntil: null,
     });
 
     // Lock the new slot
     newSlot.isAvailable = false;
+    newSlot.status = "booked";
+    newSlot.reservedUntil = null;
     await newSlot.save();
 
     // Update the appointment details
