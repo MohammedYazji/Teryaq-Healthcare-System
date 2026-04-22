@@ -82,4 +82,44 @@ export class AvailabilityController {
       });
     },
   );
+
+  // CONTROLLER FOR DOCTOR TO UPDATE THEIR SLOTS
+  static updateMySlot = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const doctorId = req.user?.doctorProfileId;
+      const slotId = req.params.id;
+
+      if (!doctorId) {
+        return next(new AppError("Doctor profile not found", 404));
+      }
+
+      // CALL THE SERVICE TO UPDATE THE SLOT
+      const slot = await AvailabilityService.updateSlot(slotId as string, doctorId as string, req.body);
+
+      res.status(200).json({
+        status: "success",
+        data: { slot },
+      });
+    },
+  );
+
+  // CONTROLLER FOR THE LOGGED-IN DOCTOR TO DELETE THEIR SLOTS
+  static deleteMySlot = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const doctorId = req.user?.doctorProfileId;
+      const slotId = req.params.id;
+
+      if (!doctorId) {
+        return next(new AppError("Doctor profile not found", 404));
+      }
+
+      // CALL THE SERVICE TO DELETE THE SLOT
+      await AvailabilityService.deleteSlot(slotId as string, doctorId as string);
+
+      res.status(204).json({
+        status: "success",
+        data: null,
+      });
+    },
+  );
 }

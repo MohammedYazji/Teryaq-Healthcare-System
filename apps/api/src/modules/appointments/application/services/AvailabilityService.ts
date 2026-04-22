@@ -95,4 +95,52 @@ export class AvailabilityService {
 
     return await AvailabilityModel.find(query).sort({ startTime: 1 });
   }
+
+  // UPPDATE THE DOCTOR CURRENT AVAILABILITY
+  static async updateSlot(slotId: string, doctorId: string, updateData: any) {
+    const slot = await AvailabilityModel.findOne({ _id: slotId, doctorId });
+
+    if (!slot) {
+        throw new AppError('Slot not found or you do not have permission to update it', 404);
+    }
+
+    // Check if the slot is booked
+    if (slot.status === 'booked') {
+        throw new AppError('Cannot update a booked and confirmed slot.', 400);
+    }
+
+    // Check if the slot is reserved and not expired
+    const isCurrentlyReserved = slot.status === 'reserved' && slot.reservedUntil && slot.reservedUntil > new Date();
+    if (isCurrentlyReserved) {
+        throw new AppError('This slot is currently being processed for checkout, cannot update it.', 400);
+    }
+    
+    return await AvailabilityModel.findByIdAndUpdate(slotId, updateData, {
+        new: true,
+        runValidators: true
+    });
+}
+
+  // DELETE THE DOCTOR CURRENT AVAILABILITY (IF NOT BOOKED)
+  static async deleteSlot(slotId: string, doctorId: string) {
+    const slot = await AvailabilityModel.findOne({ _id: slotId, doctorId });
+
+    if (!slot) {
+        throw new AppError('Slot not found or you do not have permission', 404);
+    }
+
+    // Check if the slot is booked
+    if (slot.status === 'booked') {
+        throw new AppError('Cannot delete a slot that has a confirmed booking.', 400);
+    }
+
+    // Check if the slot is reserved and not expired
+    const isCurrentlyReserved = slot.status === 'reserved' && slot.reservedUntil && slot.reservedUntil > new Date();
+    
+    if (isCurrentlyReserved) {
+        throw new AppError('Cannot delete a slot that is currently being processed for checkout.', 400);
+    }
+
+    await AvailabilityModel.findByIdAndDelete(slotId);
+}
 }

@@ -26,4 +26,8 @@ router.get(
   AvailabilityController.getMyAvailability,
 );
 
+router.route("/slots/:id")
+.patch(restrictTo("doctor"), isActive, AvailabilityController.updateMySlot)
+.delete(restrictTo("doctor"), isActive, AvailabilityController.deleteMySlot)
+
 export { router as availabilityRoutes };
