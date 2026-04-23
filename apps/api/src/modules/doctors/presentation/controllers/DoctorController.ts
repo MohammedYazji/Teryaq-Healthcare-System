@@ -47,7 +47,7 @@ export class DoctorController {
   // FETCH THE LIST OF DOCTORS
   getAllDoctors = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const doctors = await doctorService.getAllDoctors();
+      const doctors = await doctorService.getAllDoctors(req.query);
 
       res.status(200).json({
         status: "success",

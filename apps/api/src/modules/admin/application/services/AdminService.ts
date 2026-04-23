@@ -13,6 +13,7 @@ export class AdminService {
       isVerified: false,
       documents: { $exists: true, $not: { $size: 0 } },
     })
+      .setOptions({ unverified: true })
       .populate("userId", "firstName lastName email photo")
       .populate("specialization", "name");
   }
@@ -23,7 +24,9 @@ export class AdminService {
       doctorId,
       { isVerified },
       { returnDocument: "after", runValidators: true },
-    ).populate("userId", "firstName lastName email");
+    )
+      .setOptions({ unverified: true })
+      .populate("userId", "firstName lastName email");
 
     if (!doctor) {
       throw new AppError("Doctor profile not found", 404);
@@ -98,12 +101,12 @@ export class AdminService {
       pendingAppointments,
       cancelledAppointments,
     ] = await Promise.all([
-      DoctorProfileModel.countDocuments(),
-      DoctorProfileModel.countDocuments({ isVerified: true }),
+      DoctorProfileModel.countDocuments().setOptions({ unverified: true }),
+      DoctorProfileModel.countDocuments({ isVerified: true }).setOptions({ unverified: true }),
       DoctorProfileModel.countDocuments({
         isVerified: false,
         documents: { $exists: true, $not: { $size: 0 } },
-      }),
+      }).setOptions({ unverified: true }),
       PatientProfileModel.countDocuments(),
       SpecializationModel.countDocuments(),
       DoctorProfileModel.find({ isVerified: true })

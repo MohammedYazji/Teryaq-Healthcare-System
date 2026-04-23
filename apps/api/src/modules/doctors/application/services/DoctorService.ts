@@ -3,6 +3,7 @@ import { DoctorProfileModel } from "../../infrastructure/models/DoctorModel";
 import { IDoctorProfile } from "../../domain/entities/IDoctorProfile";
 import { AppError } from "../../../../core/errors/AppError";
 import { CloudinaryService } from "../../../../core/services/CloudinaryService";
+import { UserModel } from "../../../users/infrastructure/models/UserModel ";
 
 class DoctorService {
   // CREATE A NEW DOCTOR PROFILE
@@ -24,6 +25,7 @@ class DoctorService {
   // FETCH THE DOCTOR INFORMATION VIA ID
   async getProfileByUserId(userId: string) {
     const profile = await DoctorProfileModel.findOne({ userId })
+      .setOptions({ unverified: true })
       .populate("userId", "firstName lastName")
       .populate("specialization");
 
@@ -41,7 +43,9 @@ class DoctorService {
         returnDocument: "after", // return the doc after updating
         runValidators: true, // validate the new data
       },
-    ).populate("specialization");
+    )
+      .setOptions({ unverified: true })
+      .populate("specialization");
 
     if (!updatedProfile) {
       throw new AppError("Profile not found", 404);
@@ -51,13 +55,60 @@ class DoctorService {
   }
 
   // FETCH ALL DOCTORS
-  async getAllDoctors() {
-    const doctors = await DoctorProfileModel.find()
+  async getAllDoctors(queryParams: any) {
+     const {
+      specialization,
+      minPrice,
+      maxPrice,
+      minRating,
+      search,
+      sort
+    } = queryParams
+
+    let query: any = {}
+
+    // Filter the spcialization
+    if (specialization) query.specialization = specialization;
+
+    // Filter using the price range
+    if (minPrice || maxPrice) {
+      query.consultationFee = {};
+
+      if (minPrice) query.consultationFee.$gte = Number(minPrice);
+      if (maxPrice) query.consultationFee.$lte = Number(maxPrice);
+    }
+
+    // Filter based on minimum rating
+    if (minRating) query.averageRating = { $gte: Number(minRating) };
+
+    // search by name or specialization
+    if (search) {
+      const matchingUsers = await UserModel.find({
+        $or: [
+          { firstName: { $regex: search, $options: "i" } },
+          { lastName: { $regex: search, $options: "i" } },
+        ],
+      }).select("_id");
+
+      const userIds = matchingUsers.map((u) => u._id);
+      query.userId = { $in: userIds };
+    }
+
+    // build the query
+    let mongooseQuery = DoctorProfileModel.find(query)
       .populate("userId", "firstName lastName photo")
       .populate("specialization", "name icon");
 
-    // RETURN JUST THE DOCTORS PROFILES IF THEIR USER ID IS ACTIVE
-    return doctors.filter((doc) => doc.userId !== null);
+    // sort the results
+    if (sort) {
+      const [ field, order ] = sort.split(":") as [string, "asc" | "desc"];
+      mongooseQuery = mongooseQuery.sort({ [field]: order });
+    } else {
+      mongooseQuery = mongooseQuery.sort({ createdAt: -1 });
+    }
+
+    // Return the doctors profiles
+    return await mongooseQuery;
   }
 
   // FETCH A DOCTOR USING THE DOCTOR ID
@@ -90,7 +141,7 @@ class DoctorService {
       { userId: doctorId },
       { $push: { documents: { $each: newDocs } } },
       { returnDocument: "after", runValidators: true },
-    );
+    ).setOptions({ unverified: true });
   }
 }
 

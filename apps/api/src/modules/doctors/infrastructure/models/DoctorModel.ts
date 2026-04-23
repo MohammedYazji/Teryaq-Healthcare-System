@@ -55,5 +55,16 @@ const DoctorSchema = new Schema<IDoctorDocument>(
   { timestamps: true },
 );
 
+// Filter to only return verified doctors by default
+DoctorSchema.pre(/^(find|countDocuments)/, function (this: any) {
+  // If the query explicitly sets the unverified option to true, we don't filter
+  if (this.getOptions().unverified !== true) {
+    this.find({ isVerified: true });
+  }
+});
+
+// optimize the search speed by indexing the fields used in the search
+DoctorSchema.index({ specialization: 1, consultationFee: 1, averageRating: -1 });
+
 export const DoctorProfileModel: Model<IDoctorDocument> =
   mongoose.model<IDoctorDocument>("DoctorProfile", DoctorSchema);
