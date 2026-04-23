@@ -105,4 +105,31 @@ export class MedicalRecordService {
     // Delete it
     await MedicalRecordModel.findByIdAndDelete(recordId);
   }
+
+  // Get a patient history
+static async getPatientHistory(patientId: string) {
+    // fetch all records that realted to this patinet
+    // to get all the info from the appointment id
+    return await MedicalRecordModel.find({ patientId })
+      .populate({
+        path: 'appointmentId',
+        select: 'appointmentDate status consultationType',
+        populate: {
+          path: 'doctorId',
+          select: 'specialization',
+          // use an array to populate multiple fields inside the doctor
+          populate: [
+            {
+              path: 'userId',
+              select: 'firstName lastName photo'
+            },
+            {
+              path: 'specialization', 
+              select: 'name icon'
+            }
+          ]
+        }
+      })
+      .sort({ createdAt: -1 });
+  }
 }

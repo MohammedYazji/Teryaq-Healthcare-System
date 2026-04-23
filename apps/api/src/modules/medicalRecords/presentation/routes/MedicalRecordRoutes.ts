@@ -23,6 +23,13 @@ router.get(
   MedicalRecordController.getRecordByAppointment,
 );
 
+router.get(
+  "/my-history",
+  restrictTo("patient"),
+  isActive,
+  MedicalRecordController.getPatientHistory,
+);
+
 router
   .route("/:id")
   .patch(restrictTo("doctor"), isActive, MedicalRecordController.updateRecord)

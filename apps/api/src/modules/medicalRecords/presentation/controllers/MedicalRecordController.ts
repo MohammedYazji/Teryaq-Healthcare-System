@@ -93,4 +93,23 @@ export class MedicalRecordController {
       });
     },
   );
+
+  // GET PATIENT HISTORY
+  static getPatientHistory = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+const patientId = req.user?.patientProfileId;
+
+  if (!patientId) {
+    return next(new AppError("Patient profile not found for this user", 404));
+  }
+
+  const history = await MedicalRecordService.getPatientHistory(patientId);
+
+  res.status(200).json({
+    status: 'success',
+    results: history.length,
+    data: { history }
+  });
+    },
+  );
 }
