@@ -11,7 +11,7 @@ export const signupSchema = z.object({
   email: z.string().email("Invalid email format"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   passwordConfirm: z.string(),
-  role: z.enum(["doctor", "patient"]),
+  role: z.enum(["admin", "doctor", "patient"]),
   phone: z.string().optional(),
   // Doctor profile fields
   doctorInfo: z.object({

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تقرير طبي - ترياق</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&display=swap');
+
+        :root {
+            --primary: #31AF97;
+            --secondary: #243262;
+            --text-main: #243262;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --bg-light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: white;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        /* Header Section */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .logo-area h1 {
+            color: var(--secondary);
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .report-info {
+            text-align: left; /* Aligned to left because the page is RTL */
+        }
+
+        .report-info p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Profile Sections */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-card {
+            background: var(--bg-light);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .info-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            width: 80px;
+            color: var(--text-muted);
+        }
+
+        /* Record Content */
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+            margin-right: 15px;
+        }
+
+        .content-box {
+            padding: 10px 15px;
+            border-right: 4px solid var(--primary);
+            background: #fdfdfd;
+            font-size: 15px;
+        }
+
+        /* Prescription Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background: var(--bg-light);
+            text-align: right;
+            padding: 12px;
+            font-size: 14px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+
+        .signature {
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .signature-box {
+            width: 200px;
+            text-align: center;
+            border-top: 1px solid var(--text-main);
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Main Header -->
+        <header class="header">
+            <div class="logo-area">
+                <h1>ترياق (Teryaq)</h1>
+                <p>نظام الرعاية الصحية الذكي</p>
+            </div>
+            <div class="report-info">
+                <p>تاريخ التقرير: <%= new Date().toLocaleDateString('ar-EG') %></p>
+                <p>رقم التقرير: #<%= record._id.toString().slice(-6).toUpperCase() %></p>
+            </div>
+        </header>
+
+        <!-- Patient & Doctor Info -->
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>معلومات المريض</h3>
+                <div class="info-row">
+                    <span class="info-label">الاسم:</span>
+                    <span><%= record.patientId.userId.firstName %> <%= record.patientId.userId.lastName %></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">فصيلة الدم:</span>
+                    <span><%= record.patientId.bloodType || 'غير محدد' %></span>
+                </div>
+            </div>
+            <div class="info-card">
+                <h3>معلومات الطبيب</h3>
+                <div class="info-row">
+                    <span class="info-label">الدكتور:</span>
+                    <span><%= record.doctorId.userId.firstName %> <%= record.doctorId.userId.lastName %></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">التخصص:</span>
+                    <span><%= record.doctorId.specialization.name %></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clinical Details -->
+        <div class="section">
+            <div class="section-title">الأعراض (Symptoms)</div>
+            <div class="content-box">
+                <%= record.symptoms || 'لا يوجد أعراض مسجلة' %>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">التشخيص (Diagnosis)</div>
+            <div class="content-box" style="font-weight: bold;">
+                <%= record.diagnosis %>
+            </div>
+        </div>
+
+        <!-- Prescriptions -->
+        <div class="section">
+            <div class="section-title">الوصفة الطبية (Prescription)</div>
+            <% if (record.prescriptions && record.prescriptions.length > 0) { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الدواء</th>
+                            <th>الجرعة</th>
+                            <th>التكرار</th>
+                            <th>المدة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% record.prescriptions.forEach(p => { %>
+                            <tr>
+                                <td><%= p.medicineName %></td>
+                                <td><%= p.dosage %></td>
+                                <td><%= p.frequency %></td>
+                                <td><%= p.duration %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <div class="content-box">لا توجد أدوية موصوفة.</div>
+            <% } %>
+        </div>
+
+        <% if (record.notes) { %>
+            <div class="section">
+                <div class="section-title">ملاحظات إضافية</div>
+                <div class="content-box">
+                    <%= record.notes %>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- Signature -->
+        <div class="signature">
+            <div class="signature-box">
+                توقيع الطبيب
+                <br>
+                <small>د. <%= record.doctorId.userId.lastName %></small>
+            </div>
+        </div>
+
+        <footer class="footer">
+            هذا المستند تم إنشاؤه آلياً بواسطة نظام ترياق الطبي.
+        </footer>
+    </div>
+</body>
+</html>

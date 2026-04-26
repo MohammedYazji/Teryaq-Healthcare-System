@@ -30,6 +30,8 @@ router.get(
   MedicalRecordController.getPatientHistory,
 );
 
+router.get("/:id/export", MedicalRecordController.exportPDF);
+
 router
   .route("/:id")
   .patch(restrictTo("doctor"), isActive, MedicalRecordController.updateRecord)

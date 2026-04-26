@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
+import path from "path";
 import { MedicalRecordService } from "../../application/services/MedicalRecordService";
+import { PdfService } from "../../../../core/services/PdfService";
 import { catchAsync } from "../../../../core/utils/catchAsync";
 import { AppError } from "../../../../core/errors/AppError";
 
@@ -97,19 +99,54 @@ export class MedicalRecordController {
   // GET PATIENT HISTORY
   static getPatientHistory = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-const patientId = req.user?.patientProfileId;
+      const patientId = req.user?.patientProfileId;
 
-  if (!patientId) {
-    return next(new AppError("Patient profile not found for this user", 404));
-  }
+      if (!patientId) {
+        return next(
+          new AppError("Patient profile not found for this user", 404),
+        );
+      }
 
-  const history = await MedicalRecordService.getPatientHistory(patientId);
+      const history = await MedicalRecordService.getPatientHistory(patientId);
 
-  res.status(200).json({
-    status: 'success',
-    results: history.length,
-    data: { history }
-  });
+      res.status(200).json({
+        status: "success",
+        results: history.length,
+        data: { history },
+      });
+    },
+  );
+
+  // EXPORT MEDICAL RECORD AS PDF
+  static exportPDF = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+
+      // Fetch the record with all the needed info (populated)
+      const record = (await MedicalRecordService.getPopulatedRecord(
+        id as string,
+      )) as any;
+
+      // Define the path to our EJS template
+      const templatePath = path.join(
+        __dirname,
+        "../../infrastructure/templates/medical-report.ejs",
+      );
+
+      // Generate the PDF buffer
+      const pdfBuffer = await PdfService.generatePdf(templatePath, { record });
+
+      // Set the headers to download the file
+      const fileName = `Medical-Report-${record.patientId.userId.lastName}.pdf`;
+
+      res.set({
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${fileName}"`,
+        "Content-Length": pdfBuffer.length,
+      });
+
+      // Send the PDF buffer as a response
+      res.end(pdfBuffer);
     },
   );
 }

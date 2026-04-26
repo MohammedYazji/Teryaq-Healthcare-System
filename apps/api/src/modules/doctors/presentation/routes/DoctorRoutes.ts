@@ -12,15 +12,16 @@ import {
 
 const router = express.Router();
 
+// AUTHENTICATED ROUTES (placed before dynamic /:id to avoid conflict)
+router.get("/me", protect, restrictTo("doctor"), doctorController.getMe);
+
 // UNAUTHENTICATED ROUTES
 router.get("/", doctorController.getAllDoctors);
 router.get("/:id", doctorController.getDoctorById);
 
-// AUTHENTICATED ROUTES
+// MIDDLEWARES FOR FOLLOWING ROUTES
 router.use(protect);
 router.use(restrictTo("doctor"));
-
-router.get("/me", doctorController.getMe);
 
 router.patch("/updateMe", isActive, doctorController.updateMe);
 

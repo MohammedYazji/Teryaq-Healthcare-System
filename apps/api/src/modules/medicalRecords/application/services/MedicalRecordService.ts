@@ -107,29 +107,48 @@ export class MedicalRecordService {
   }
 
   // Get a patient history
-static async getPatientHistory(patientId: string) {
+  static async getPatientHistory(patientId: string) {
     // fetch all records that realted to this patinet
     // to get all the info from the appointment id
     return await MedicalRecordModel.find({ patientId })
       .populate({
-        path: 'appointmentId',
-        select: 'appointmentDate status consultationType',
+        path: "appointmentId",
+        select: "appointmentDate status consultationType",
         populate: {
-          path: 'doctorId',
-          select: 'specialization',
+          path: "doctorId",
+          select: "specialization",
           // use an array to populate multiple fields inside the doctor
           populate: [
             {
-              path: 'userId',
-              select: 'firstName lastName photo'
+              path: "userId",
+              select: "firstName lastName photo",
             },
             {
-              path: 'specialization', 
-              select: 'name icon'
-            }
-          ]
-        }
+              path: "specialization",
+              select: "name icon",
+            },
+          ],
+        },
       })
       .sort({ createdAt: -1 });
+  }
+
+  // Get a single record with full population for PDF export
+  static async getPopulatedRecord(recordId: string) {
+    const record = await MedicalRecordModel.findById(recordId)
+      .populate({
+        path: "patientId",
+        populate: { path: "userId", select: "firstName lastName" },
+      })
+      .populate({
+        path: "doctorId",
+        populate: [
+          { path: "userId", select: "firstName lastName" },
+          { path: "specialization", select: "name" },
+        ],
+      });
+
+    if (!record) throw new AppError("Medical record not found", 404);
+    return record;
   }
 }
