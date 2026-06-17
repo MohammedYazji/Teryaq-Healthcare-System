@@ -17,6 +17,7 @@ import { reviewRouter } from "./modules/reviews/presentation/routes/ReviewRoutes
 import { adminRoutes } from "./modules/admin/presentation/routes/adminRoutes";
 import { PaymentController } from "./modules/payments/presentation/controllers/PaymentController";
 import { paymentRoutes } from "./modules/payments/presentation/routes/paymentRoutes";
+import { agoraRoutes } from "./modules/agora/presentation/routes/AgoraRoutes";
 import { SocketService } from "./core/utils/SocketService";
 
 import dns from "node:dns";
@@ -63,6 +64,7 @@ const bootstrap = async () => {
   app.use("/api/v1/reviews", reviewRouter);
   app.use("/api/v1/admin", adminRoutes);
   app.use("/api/v1/payment", paymentRoutes);
+  app.use("/api/v1/agora", agoraRoutes);
 
   // HANDLE UNHANDLED ROUTES
   app.use((req: Request, res: Response, next: NextFunction) => {
