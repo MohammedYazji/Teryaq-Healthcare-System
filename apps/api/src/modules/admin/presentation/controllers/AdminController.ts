@@ -104,6 +104,18 @@ export class AdminController {
       data: { stats },
     });
   });
+
+  // GET FINANCIAL STATISTICS FOR REPORTS
+  getFinancialStats = catchAsync(
+    async (req: Request, res: Response): Promise<void> => {
+      const financialStats = await adminService.getFinancialStats();
+
+      res.status(200).json({
+        status: "success",
+        data: financialStats,
+      });
+    },
+  );
 }
 
 export const adminController = new AdminController();

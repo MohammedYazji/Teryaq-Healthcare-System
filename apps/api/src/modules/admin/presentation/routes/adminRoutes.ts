@@ -13,6 +13,7 @@ router.use(restrictTo("admin"));
 
 // STATISTICS
 router.get("/stats", adminController.getStats);
+router.get("/financial-stats", adminController.getFinancialStats);
 
 // DOCTOR_MANAGEMENT
 router.get("/pending-doctors", adminController.getPendingDoctors);

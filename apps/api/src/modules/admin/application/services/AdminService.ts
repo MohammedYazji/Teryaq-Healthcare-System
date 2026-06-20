@@ -86,6 +86,126 @@ export class AdminService {
     return user;
   }
 
+  /// FINANCIAL STATISTICS ///
+  // Fetch financial data for the reports dashboard
+  async getFinancialStats() {
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    // Total revenue from paid appointments
+    const revenueAgg = await AppointmentModel.aggregate([
+      { $match: { paymentStatus: "paid" } },
+      { $group: { _id: null, total: { $sum: "$fee" } } },
+    ]);
+    const totalRevenue = revenueAgg[0]?.total || 0;
+
+    // Total paid consultations and average per session
+    const totalConsultations = await AppointmentModel.countDocuments({
+      paymentStatus: "paid",
+    });
+    const avgPerSession =
+      totalConsultations > 0
+        ? Math.round((totalRevenue / totalConsultations) * 10) / 10
+        : 0;
+
+    // Refunds
+    const refundAgg = await AppointmentModel.aggregate([
+      { $match: { paymentStatus: "refunded" } },
+      { $group: { _id: null, total: { $sum: "$fee" }, count: { $sum: 1 } } },
+    ]);
+    const totalRefunds = refundAgg[0]?.total || 0;
+    const refundCount = refundAgg[0]?.count || 0;
+
+    // Monthly revenue for last 6 months
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+    sixMonthsAgo.setDate(1);
+    sixMonthsAgo.setHours(0, 0, 0, 0);
+
+    const monthlyAgg = await AppointmentModel.aggregate([
+      {
+        $match: {
+          paymentStatus: "paid",
+          createdAt: { $gte: sixMonthsAgo },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
+          revenue: { $sum: "$fee" },
+        },
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
+    ]);
+
+    const monthlyRevenue = monthlyAgg.map((m) => ({
+      month: monthNames[m._id.month - 1] || "Unknown",
+      revenue: m.revenue,
+    }));
+
+    // recent transactions
+    const recentAppointments = await AppointmentModel.find({
+      paymentStatus: { $in: ["paid", "refunded", "unpaid", "failed"] },
+    })
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .populate({
+        path: "patientId",
+        populate: { path: "userId", select: "firstName lastName" },
+      })
+      .populate({
+        path: "doctorId",
+        populate: { path: "userId", select: "firstName lastName" },
+      });
+
+    const transactions = recentAppointments.map((a, i) => {
+      const appt = a as any;
+      return {
+        id: `TXN-${String(i + 1).padStart(3, "0")}`,
+        patient: `${appt.patientId?.userId?.firstName || "Unknown"} ${appt.patientId?.userId?.lastName || ""}`,
+        doctor: `Dr. ${appt.doctorId?.userId?.firstName || "Unknown"} ${appt.doctorId?.userId?.lastName || ""}`,
+        amount: appt.fee,
+        date: new Date(appt.createdAt).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }),
+        status:
+          appt.paymentStatus === "paid"
+            ? "completed"
+            : appt.paymentStatus || "unknown",
+        type: "Consultation",
+      };
+    });
+
+    return {
+      summary: {
+        totalRevenue,
+        totalConsultations,
+        avgPerSession,
+        refundsIssued: totalRefunds,
+        refundCount,
+      },
+      monthlyRevenue,
+      transactions,
+    };
+  }
+
   /// STATISTICS ///
   // Fetch the stats for the admin dashboard
   async getDashboardStats() {
@@ -102,7 +222,9 @@ export class AdminService {
       cancelledAppointments,
     ] = await Promise.all([
       DoctorProfileModel.countDocuments().setOptions({ unverified: true }),
-      DoctorProfileModel.countDocuments({ isVerified: true }).setOptions({ unverified: true }),
+      DoctorProfileModel.countDocuments({ isVerified: true }).setOptions({
+        unverified: true,
+      }),
       DoctorProfileModel.countDocuments({
         isVerified: false,
         documents: { $exists: true, $not: { $size: 0 } },
