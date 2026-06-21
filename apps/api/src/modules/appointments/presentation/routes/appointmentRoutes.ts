@@ -28,7 +28,6 @@ router.get("/:id", AppointmentController.getAppointment);
 router.patch(
   "/:id/status",
   isActive,
-  restrictTo("doctor"),
   AppointmentController.updateStatus,
 );
 

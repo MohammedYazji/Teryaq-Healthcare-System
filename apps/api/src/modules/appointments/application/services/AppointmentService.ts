@@ -22,9 +22,11 @@ export class AppointmentService {
     }
 
     // CHECK IF THE SLOT IS STILL AVAILABLE
-    const isActuallyAvailable = 
-      slot.isAvailable || 
-      (slot.status === "reserved" && slot.reservedUntil && slot.reservedUntil < new Date());
+    const isActuallyAvailable =
+      slot.isAvailable ||
+      (slot.status === "reserved" &&
+        slot.reservedUntil &&
+        slot.reservedUntil < new Date());
 
     if (!isActuallyAvailable) {
       throw new AppError(
@@ -35,33 +37,47 @@ export class AppointmentService {
 
     // CHECK IF THE REQUESTED DATE MATCHES THE SLOT DAY
     const requestedDate = new Date(appointmentDate);
-    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const dayNames = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
     const requestedDayName = dayNames[requestedDate.getDay()];
 
     if (requestedDayName.toLowerCase() !== slot.dayOfWeek.toLowerCase()) {
-       throw new AppError(`This slot is only available on ${slot.dayOfWeek}s. You provided a ${requestedDayName}.`, 400);
+      throw new AppError(
+        `This slot is only available on ${slot.dayOfWeek}s. You provided a ${requestedDayName}.`,
+        400,
+      );
     }
 
     // FETCH THE DOCTOR TO GET THE FEE AS SNAPSHOT INSIDE THE APPOINTMENT DOCUMENT
-    const doctor = await DoctorProfileModel.findOne({ _id: slot.doctorId }).populate(
-      "userId",
-      "firstName lastName email",
-    );
+    const doctor = await DoctorProfileModel.findOne({
+      _id: slot.doctorId,
+    }).populate("userId", "firstName lastName email");
     if (!doctor) throw new AppError("Doctor not found", 404);
 
     // IF THE SLOT WAS EXPIRED BUT IS NOW BEING BOOKED BY SOMEONE ELSE
     // WE SHOULD CANCEL THE OLD PENDING APPOINTMENT TO FREE THE UNIQUE INDEX
-    if (slot.status === "reserved" && slot.reservedUntil && slot.reservedUntil < new Date()) {
+    if (
+      slot.status === "reserved" &&
+      slot.reservedUntil &&
+      slot.reservedUntil < new Date()
+    ) {
       await AppointmentModel.updateMany(
-         { 
-      slotId: slot._id, 
-      appointmentDate: requestedDate, 
-      status: { $in: ["pending", "pending-payment"] } 
-    },
-    { 
-      status: "cancelled", 
-      cancellationReason: "Reservation expired and slot re-booked" 
-    }
+        {
+          slotId: slot._id,
+          appointmentDate: requestedDate,
+          status: { $in: ["pending", "pending-payment"] },
+        },
+        {
+          status: "cancelled",
+          cancellationReason: "Reservation expired and slot re-booked",
+        },
       );
     }
 
@@ -96,11 +112,15 @@ export class AppointmentService {
       if (doctor.userId && patientUser) {
         const doctorUser = await UserModel.findById(doctor.userId);
         if (doctorUser) {
-          await new Email(doctorUser).sendNewAppointmentAlert(
-            `${patientUser.firstName || "Valued"} ${patientUser.lastName || "Patient"}`,
-            appointment.appointmentDate.toDateString(),
-            appointment.appointmentTime,
-          );
+          try {
+            await new Email(doctorUser).sendNewAppointmentAlert(
+              `${patientUser.firstName || "Valued"} ${patientUser.lastName || "Patient"}`,
+              appointment.appointmentDate.toDateString(),
+              appointment.appointmentTime,
+            );
+          } catch (emailError) {
+            console.error("Failed to send booking email:", emailError);
+          }
         }
       }
 
@@ -122,32 +142,53 @@ export class AppointmentService {
     const query =
       role === "doctor" ? { doctorId: profileId } : { patientId: profileId };
 
+    const doctorPopulate = {
+      path: "doctorId",
+      populate: [
+        { path: "userId", select: "firstName lastName email photo" },
+        { path: "specialization", select: "name" },
+      ],
+    };
+
+    const patientPopulate = {
+      path: "patientId",
+      populate: { path: "userId", select: "firstName lastName email photo" },
+    };
+
     return await AppointmentModel.find(query)
-      .populate({
-        path: role === "doctor" ? "patientId" : "doctorId",
-        select: "firstName lastName email phoneNumber photo",
-      })
+      .populate(role === "doctor" ? patientPopulate : doctorPopulate)
+      .populate("slotId")
       .sort({ createdAt: -1 }); // Newest First
   }
 
   // UPDATE THE APPOINTMENT STATUS VIA THE DOCTOR
   static async updateStatus(
     appointmentId: string,
-    doctorId: string,
-    newStatus: "scheduled" | "cancelled",
+    profileId: string,
+    newStatus: "scheduled" | "cancelled" | "in-progress" | "completed",
+    role: "doctor" | "patient",
     cancellationReason?: string,
   ) {
-    // FETCH THE APPOINTMENT
-    const appointment = await AppointmentModel.findOne({
-      _id: appointmentId,
-      doctorId,
-    });
+    // FETCH THE APPOINTMENT - match by doctorId or patientId based on role
+    const query =
+      role === "doctor"
+        ? { _id: appointmentId, doctorId: profileId }
+        : { _id: appointmentId, patientId: profileId };
+
+    const appointment = await AppointmentModel.findOne(query);
 
     if (!appointment) {
       throw new AppError(
         "Appointment not found or you do not have permission",
         404,
       );
+    }
+
+    // IN-PROGRESS / COMPLETED - just update status, no slot changes
+    if (newStatus === "in-progress" || newStatus === "completed") {
+      appointment.status = newStatus;
+      await appointment.save();
+      return appointment;
     }
 
     // IF THE APPOINTMENT CANCELLED MAKE THE SLOT AVAILABLE AGAIN
@@ -166,9 +207,13 @@ export class AppointmentService {
         appointment.patientId,
       ).populate("userId");
       if (patient?.userId) {
-        await new Email(patient.userId as any).sendAppointmentCancelled(
-          appointment.cancellationReason,
-        );
+        try {
+          await new Email(patient.userId as any).sendAppointmentCancelled(
+            appointment.cancellationReason,
+          );
+        } catch (emailError) {
+          console.error("Failed to send cancellation email:", emailError);
+        }
       }
     }
 
@@ -202,20 +247,22 @@ export class AppointmentService {
       const patient = await PatientProfileModel.findById(
         appointment.patientId,
       ).populate("userId");
-      const doctorProfile =
-        await DoctorProfileModel.findById(doctorId).populate(
-          "userId",
-          "firstName lastName",
-        );
+      const doctorProfile = await DoctorProfileModel.findById(
+        profileId,
+      ).populate("userId", "firstName lastName");
       const doctorLastName =
         (doctorProfile?.userId as any)?.lastName || "Doctor";
 
       if (patient?.userId) {
-        await new Email(patient.userId as any).sendAppointmentConfirmed(
-          `Dr. ${doctorLastName}`,
-          appointment.appointmentDate.toDateString(),
-          appointment.appointmentTime,
-        );
+        try {
+          await new Email(patient.userId as any).sendAppointmentConfirmed(
+            `Dr. ${doctorLastName}`,
+            appointment.appointmentDate.toDateString(),
+            appointment.appointmentTime,
+          );
+        } catch (emailError) {
+          console.error("Failed to send confirmation email:", emailError);
+        }
       }
     }
 
@@ -246,6 +293,7 @@ export class AppointmentService {
     profileId: string, // id of the person making the change
     role: "doctor" | "patient",
     newSlotId: string,
+    newDate?: string,
   ) {
     // Fetch current appointment
     const query =
@@ -278,7 +326,8 @@ export class AppointmentService {
     // Update the appointment details
     appointment.slotId = newSlot._id as any;
     appointment.appointmentTime = newSlot.startTime; // Update the snapshot
-    appointment.status = "scheduled"; // Reset status to scheduled if it was pending
+    if (newDate) appointment.appointmentDate = new Date(newDate); // Update the date
+    appointment.status = role === "doctor" ? "scheduled" : "pending"; // Doctor reschedule keeps approved, patient needs re-approval
     appointment.cancellationReason = undefined; // Clear any old reasons
 
     await appointment.save();

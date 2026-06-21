@@ -60,21 +60,31 @@ export class AppointmentController {
     async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
       const { status, cancellationReason } = req.body;
-      const doctorId = req.user?.doctorProfileId;
 
-      if (!["scheduled", "cancelled"].includes(status)) {
-        return next(
-          new AppError(
-            "Invalid status. Please use scheduled or cancelled",
-            400,
-          ),
-        );
+      const allowed = ["scheduled", "cancelled", "in-progress", "completed"];
+      if (!allowed.includes(status)) {
+        return next(new AppError("Invalid status transition", 400));
+      }
+
+      // Only doctors can accept (scheduled) or cancel
+      if (["scheduled", "cancelled"].includes(status) && req.user?.role !== "doctor") {
+        return next(new AppError("Only doctors can accept or cancel appointments", 403));
+      }
+
+      const profileId =
+        req.user?.role === "doctor"
+          ? req.user?.doctorProfileId
+          : req.user?.patientProfileId;
+
+      if (!profileId) {
+        return next(new AppError("Profile not found for this user", 400));
       }
 
       const appointment = await AppointmentService.updateStatus(
         id as string,
-        doctorId as string,
+        profileId,
         status,
+        req.user?.role as "doctor" | "patient",
         cancellationReason,
       );
 
@@ -111,7 +121,7 @@ export class AppointmentController {
   static reschedule = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params; // Appointment ID
-      const { newSlotId } = req.body; // New Slot ID from Body
+      const { newSlotId, newDate } = req.body; // New Slot ID & Date from Body
 
       // Check the role of the subject
       const role = req.user?.role as "doctor" | "patient";
@@ -129,6 +139,7 @@ export class AppointmentController {
         profileId,
         role,
         newSlotId,
+        newDate,
       );
 
       res.status(200).json({
