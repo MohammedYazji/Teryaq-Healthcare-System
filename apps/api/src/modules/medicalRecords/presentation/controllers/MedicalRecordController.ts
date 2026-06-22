@@ -96,6 +96,25 @@ export class MedicalRecordController {
     },
   );
 
+  // GET DOCTOR'S OWN RECORDS
+  static getDoctorRecords = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const doctorId = req.user?.doctorProfileId;
+      if (!doctorId) {
+        return next(new AppError("Only doctors can access medical records", 403));
+      }
+      const records = await MedicalRecordService.getDoctorRecords(
+        doctorId.toString(),
+      );
+
+      res.status(200).json({
+        status: "success",
+        results: records.length,
+        data: { records },
+      });
+    },
+  );
+
   // GET PATIENT HISTORY
   static getPatientHistory = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {

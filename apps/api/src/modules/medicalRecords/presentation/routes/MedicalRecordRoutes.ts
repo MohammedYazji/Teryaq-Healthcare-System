@@ -11,6 +11,13 @@ const router = Router();
 // AUTHENTICATED ROUTES
 router.use(protect);
 
+router.get(
+  "/",
+  restrictTo("doctor"),
+  isActive,
+  MedicalRecordController.getDoctorRecords,
+);
+
 router.post(
   "/",
   restrictTo("doctor"),

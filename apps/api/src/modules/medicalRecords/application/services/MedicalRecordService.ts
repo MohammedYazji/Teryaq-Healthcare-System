@@ -19,8 +19,8 @@ export class MedicalRecordService {
     if (!appointment)
       throw new AppError("Appointment not found or unauthorized", 404);
 
-    // Allow just the confirmed or in-progress appointments
-    const allowedStatuses = ["scheduled", "in-progress"];
+    // Allow confirmed, in-progress, or completed appointments
+    const allowedStatuses = ["scheduled", "in-progress", "completed"];
     if (!allowedStatuses.includes(appointment.status)) {
       throw new AppError(
         `Cannot create a record for an appointment that is already ${appointment.status}`,
@@ -104,6 +104,20 @@ export class MedicalRecordService {
 
     // Delete it
     await MedicalRecordModel.findByIdAndDelete(recordId);
+  }
+
+  // Get all records created by a doctor
+  static async getDoctorRecords(doctorId: string) {
+    return await MedicalRecordModel.find({ doctorId })
+      .populate({
+        path: "patientId",
+        populate: { path: "userId", select: "firstName lastName photo" },
+      })
+      .populate({
+        path: "appointmentId",
+        select: "appointmentDate",
+      })
+      .sort({ createdAt: -1 });
   }
 
   // Get a patient history
