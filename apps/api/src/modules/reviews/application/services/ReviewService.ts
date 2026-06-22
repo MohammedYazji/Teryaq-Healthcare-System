@@ -32,7 +32,10 @@ export class ReviewService {
   // Get reviews for specific doctor
   static async getDoctorReviews(doctorId: string) {
     return await ReviewModel.find({ doctorId })
-      .populate("patientId", "firstName lastName photo") // Show the patient information
+      .populate({
+        path: "patientId",
+        populate: { path: "userId", select: "firstName lastName photo" },
+      })
       .sort("-createdAt");
   }
 }
