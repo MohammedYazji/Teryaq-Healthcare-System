@@ -224,7 +224,7 @@ export class AuthService {
 
     // SEND THE RESET TOKEN TO THE USER EMAIL
     try {
-      const resetURL = `${protocol}://${host}/api/v1/users/resetPassword/${resetToken}`;
+      const resetURL = `${protocol}://${host}/api/resetPassword/${resetToken}`;
 
       await new Email(user).sendPasswordReset(resetURL);
 
