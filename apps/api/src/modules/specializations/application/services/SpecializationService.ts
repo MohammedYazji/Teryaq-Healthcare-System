@@ -1,6 +1,7 @@
 import { AppError } from "../../../../core/errors/AppError";
 import { ISpecialization } from "../../domain/entities/ISpecialization";
 import { SpecializationModel } from "../../infrastructure/models/SpecializationModel";
+import { DoctorProfileModel } from "../../../doctors/infrastructure/models/DoctorModel";
 
 class SpecializationService {
   // METHOD TO CREATE  A NEW SPECIALIZATION
@@ -8,9 +9,16 @@ class SpecializationService {
     return await SpecializationModel.create(data);
   }
 
-  // METHOD TO FETCH ALL THE SPECIALIZATIONS DATA (SORTED)
+  // METHOD TO FETCH ALL THE SPECIALIZATIONS DATA (SORTED) WITH DOCTOR COUNTS
   async findAll() {
-    return await SpecializationModel.find().sort("name");
+    const specializations = await SpecializationModel.find().sort("name").lean();
+    const specsWithCounts = await Promise.all(
+      specializations.map(async (spec) => ({
+        ...spec,
+        doctorCount: await DoctorProfileModel.countDocuments({ specialization: spec._id }),
+      })),
+    );
+    return specsWithCounts;
   }
 
   // METHOD TO FETCH A SPECIALIZATION BASED ON ID

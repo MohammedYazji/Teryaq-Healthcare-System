@@ -11,7 +11,6 @@ const SpecializationSchema = new Schema<ISpecializationDocument>(
     },
     description: {
       type: String,
-      required: true,
     },
     icon: {
       type: String,

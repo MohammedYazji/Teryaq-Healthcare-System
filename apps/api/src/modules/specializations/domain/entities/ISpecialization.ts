@@ -1,7 +1,7 @@
 export interface ISpecialization {
   id?: string;
   name: string;
-  description: string;
-  icon: string;
-  active: boolean;
+  description?: string;
+  icon?: string;
+  active?: boolean;
 }
