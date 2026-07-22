@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
-import './i18n';
 import store from './store';
 import createAppTheme from './theme';
 import { fetchAppointments } from './store/slices/appointmentsSlice';
