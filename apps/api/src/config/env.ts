@@ -21,7 +21,7 @@ export const config = {
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
-  FRONTEND_URL: process.env.FRONTEND_URL?.trim() || "http://localhost:3000",
+  FRONTEND_URL: process.env.FRONTEND_URL?.trim() || "http://localhost:3002",
   AGORA_APP_ID: process.env.AGORA_APP_ID || "747b8d11b55e4a588250acc8b198ac53",
   AGORA_APP_CERTIFICATE: process.env.AGORA_APP_CERTIFICATE || "",
 };
