@@ -293,7 +293,7 @@ const HomePage = () => {
               variant="contained"
               endIcon={<ArrowForwardIcon />}
               onClick={() => navigate('/doctors')}
-              sx={{ bgcolor: colors.brand, fontWeight: 700, textTransform: 'none', px: 3.5, py: 1.2, borderRadius: 2.5, fontSize: 14.5, '&:hover': { bgcolor: colors.brandDark } }}
+              sx={{ bgcolor: colors.brand,color: 'white !important', fontWeight: 700, textTransform: 'none', px: 3.5, py: 1.2, borderRadius: 2.5, fontSize: 14.5, '&:hover': { bgcolor: colors.brandDark } }}
             >
               View All Doctors
             </Button>
