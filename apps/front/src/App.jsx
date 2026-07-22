@@ -13,7 +13,9 @@ import Login from './pages/auth/LoginPage';
 import ForgotPassword from './pages/auth/ForgotPasswordPage';
 import ActivateAccount from './pages/auth/ActivateAccountPage';
 import ResetPassword from './pages/auth/ResetPasswordPage';
-import Register from './pages/auth/RegisterPage';
+import SignupChoice from './pages/auth/SignupChoicePage';
+import PatientSignup from './pages/auth/PatientSignupPage';
+import DoctorSignup from './pages/auth/DoctorSignupPage';
 import FindDoctors from './pages/doctors/FindDoctorsPage';
 import DoctorProfile from './pages/doctors/DoctorProfilePage';
 import MyAppointments from './pages/appointments/AppointmentsPage';
@@ -86,7 +88,9 @@ function AppInner() {
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/activate/:token" element={<ActivateAccount />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/register" element={<SignupChoice />} />
+            <Route path="/register/patient" element={<PatientSignup />} />
+            <Route path="/register/doctor" element={<DoctorSignup />} />
             <Route path="/resetPassword/:token" element={<ResetPassword />}
 />
             <Route path="/doctors" element={<FindDoctors />} />
