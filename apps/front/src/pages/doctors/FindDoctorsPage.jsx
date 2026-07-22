@@ -153,12 +153,14 @@ const FindDoctorsPage = () => {
                 placeholder="Search by doctor name or specialty..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ color: brandColor }} />
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon sx={{ color: brandColor }} />
+                      </InputAdornment>
+                    ),
+                  },
                 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
@@ -191,7 +193,7 @@ const FindDoctorsPage = () => {
             }}
           >
             {loading ? (
-              <Box textAlign="center" py={10}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 10 }}>
                 <CircularProgress
                   size={52}
                   sx={{
