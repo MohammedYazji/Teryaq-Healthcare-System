@@ -25,6 +25,16 @@ const FindDoctorsPage = () => {
   const [rawDoctors, setRawDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [specializations, setSpecializations] = useState([]);
+
+  useEffect(() => {
+    axios.get('/specializations')
+      .then((res) => {
+        const specs = res.data?.data?.specializations;
+        setSpecializations(Array.isArray(specs) ? specs : []);
+      })
+      .catch(() => {});
+  }, []);
 
   const doctors = useMemo(() => {
     const currentId = currentUser?._id;
@@ -51,7 +61,16 @@ const FindDoctorsPage = () => {
     try {
       const params = {};
 
-      if (q) params.search = q;
+      if (q) {
+        const matchedSpec = specializations.find(
+          (s) => s.name.toLowerCase() === q.trim().toLowerCase()
+        );
+        if (matchedSpec) {
+          params.specialization = matchedSpec._id || matchedSpec.id;
+        } else {
+          params.search = q;
+        }
+      }
 
       const res = await axios.get('/doctors', { params });
 
@@ -63,7 +82,7 @@ const FindDoctorsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [specializations]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
