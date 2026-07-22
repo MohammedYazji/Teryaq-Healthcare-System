@@ -43,7 +43,7 @@ const DoctorProfilePage = () => {
 
   if (loading) {
     return (
-      <Box textAlign="center" py={8}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
         <CircularProgress sx={{ color: brandColor }} />
       </Box>
     );

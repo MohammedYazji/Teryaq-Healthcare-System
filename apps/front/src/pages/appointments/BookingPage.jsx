@@ -123,7 +123,7 @@ const BookingPage = () => {
               Please select a doctor first from the <Button size="small" onClick={() => navigate('/doctors')} sx={{ textTransform: 'none', fontWeight: 600 }}>Find Doctors</Button> page.
             </Alert>
           ) : loadingDoctor ? (
-            <Box textAlign="center" py={4}><CircularProgress sx={{ color: brandColor }} /></Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 6 }}><CircularProgress sx={{ color: brandColor }} /></Box>
           ) : (
             <Box component="form" onSubmit={handleSubmit}>
               <Box sx={{ mb: 2.5, p: 2, bgcolor: '#F0FDFA', borderRadius: 2, border: '1px solid #CCFBF1' }}>
