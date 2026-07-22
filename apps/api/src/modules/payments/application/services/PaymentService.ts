@@ -30,7 +30,7 @@ export class PaymentService {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       // The URL which will redirect the user after he pays
-      success_url: `${config.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${config.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}&appointmentId=${appointmentId}`,
       cancel_url: `${config.FRONTEND_URL}/payment-cancelled`,
       customer_email: user.email,
       // I will send this Id of the appointment with the stripe session, so then when return i will check the this appointment info in the database (check confirmPayment & handleExpiredSession)
@@ -105,6 +105,47 @@ export class PaymentService {
     } catch (error) {
       console.error("Email sending failed:", error);
     }
+  }
+
+  // VERIFY PAYMENTS FOR APPOINTMENTS THAT HAVE A STRIPE SESSION BUT ARE STILL UNPAID
+  // Called when fetching appointments to catch any that the webhook missed
+  async verifyPendingPayments(appointmentIds: string[]) {
+    if (!appointmentIds.length) return [];
+
+    const unpaid = await AppointmentModel.find({
+      _id: { $in: appointmentIds },
+      stripeSessionId: { $exists: true, $ne: null },
+      paymentStatus: "unpaid",
+    });
+
+    if (!unpaid.length) return [];
+
+    const updated: string[] = [];
+
+    for (const appt of unpaid) {
+      try {
+        const session = await stripe.checkout.sessions.retrieve(appt.stripeSessionId!);
+        if (session.payment_status === "paid") {
+          appt.isPaid = true;
+          appt.paymentStatus = "paid";
+          appt.status = "scheduled";
+          await appt.save();
+
+          await AvailabilityModel.findByIdAndUpdate(appt.slotId, {
+            status: "booked",
+            isAvailable: false,
+            reservedUntil: null,
+          });
+
+          updated.push(appt._id.toString());
+          console.log(`[verifyPendingPayments] Retroactively confirmed appointment ${appt._id}`);
+        }
+      } catch (err) {
+        console.error(`[verifyPendingPayments] Failed to verify session for appointment ${appt._id}:`, err);
+      }
+    }
+
+    return updated;
   }
 
   // HANDLE THE FAILURE IN PAY

@@ -5,6 +5,7 @@ import { AppError } from "../../../../core/errors/AppError";
 import { UserModel } from "../../../users/infrastructure/models/UserModel ";
 import { Email } from "../../../../core/utils/email";
 import { PatientProfileModel } from "../../../patients/infrastructure/models/PatientModel";
+import { PaymentService } from "../../../payments/application/services/PaymentService";
 
 export class AppointmentService {
   // CORE LOGIC TO CREATE A NEW APPOINTMENT
@@ -155,10 +156,29 @@ export class AppointmentService {
       populate: { path: "userId", select: "firstName lastName email photo" },
     };
 
-    return await AppointmentModel.find(query)
+    const appointments = await AppointmentModel.find(query)
       .populate(role === "doctor" ? patientPopulate : doctorPopulate)
       .populate("slotId")
       .sort({ createdAt: -1 }); // Newest First
+
+    // Check Stripe for any unpaid appointments that have a session ID (catch missed webhooks)
+    const unpaidIds = appointments
+      .filter((a: any) => a.paymentStatus === "unpaid" && a.stripeSessionId)
+      .map((a: any) => a._id.toString());
+
+    if (unpaidIds.length) {
+      const paymentService = new PaymentService();
+      const confirmedIds = await paymentService.verifyPendingPayments(unpaidIds);
+      if (confirmedIds.length) {
+        // Re-fetch to return updated data
+        return await AppointmentModel.find(query)
+          .populate(role === "doctor" ? patientPopulate : doctorPopulate)
+          .populate("slotId")
+          .sort({ createdAt: -1 });
+      }
+    }
+
+    return appointments;
   }
 
   // UPDATE THE APPOINTMENT STATUS VIA THE DOCTOR
