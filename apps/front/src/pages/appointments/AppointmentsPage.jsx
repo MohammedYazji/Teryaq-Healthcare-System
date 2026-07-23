@@ -67,6 +67,21 @@ const isToday = (isoDate) => {
     appt.getDate() === now.getDate();
 };
 
+const isTimeToJoin = (appt) => {
+  if (!appt.appointmentDate || !appt.appointmentTime) return false;
+  const now = new Date();
+  const apptDate = new Date(appt.appointmentDate);
+  const isSameDay =
+    apptDate.getFullYear() === now.getFullYear() &&
+    apptDate.getMonth() === now.getMonth() &&
+    apptDate.getDate() === now.getDate();
+  if (!isSameDay) return false;
+  const [hours, minutes] = appt.appointmentTime.split(':').map(Number);
+  const apptMinutes = hours * 60 + minutes;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  return nowMinutes >= apptMinutes;
+};
+
 const doctorDisplayName = (appt) => {
   if (appt.doctorId?.userId) {
     const f = appt.doctorId.userId.firstName || '';
@@ -154,7 +169,7 @@ const AppointmentCard = ({ appt, reviewed, onReview, navigate }) => {
             {paying ? <CircularProgress size={16} sx={{ color: 'white' }} /> : 'Pay Now'}
           </Button>
         )}
-        {['scheduled'].includes(appt.status) && isToday(appt.appointmentDate) && (
+        {['scheduled'].includes(appt.status) && isTimeToJoin(appt) && (
           <Button
             size="small"
             variant="contained"
