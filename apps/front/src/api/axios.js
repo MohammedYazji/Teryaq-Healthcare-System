@@ -1,4 +1,6 @@
 import axios from 'axios';
+import store from '../store';
+import { logout } from '../store/slices/authSlice';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
@@ -27,9 +29,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error?.response?.data?.message === 'jwt expired') {
-      localStorage.removeItem('teryaq_token');
-      localStorage.removeItem('teryaq_user');
-      window.location.href = '/login';
+      store.dispatch(logout());
     }
     return Promise.reject(error);
   }

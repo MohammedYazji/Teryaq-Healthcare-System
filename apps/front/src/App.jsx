@@ -6,6 +6,7 @@ import { CssBaseline } from '@mui/material';
 import store from './store';
 import createAppTheme from './theme';
 import { fetchAppointments } from './store/slices/appointmentsSlice';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Patient pages
 import Home from './pages/home/HomePage';
@@ -27,6 +28,7 @@ import Profile from './pages/profile/ProfilePage';
 import MedicalRecords from './pages/medical-records/MedicalRecordsPage';
 import PaymentSuccess from './pages/payments/PaymentSuccessPage';
 import PaymentCancelled from './pages/payments/PaymentCancelledPage';
+import NotFoundPage from './pages/not-found/NotFoundPage';
 
 // Admin pages
 import AdminDashboard from './pages/admin/DashboardPage';
@@ -95,33 +97,35 @@ function AppInner() {
 />
             <Route path="/doctors" element={<FindDoctors />} />
             <Route path="/doctors/:id" element={<DoctorProfile />} />
-            <Route path="/appointments" element={<MyAppointments />} />
-            <Route path="/booking" element={<Booking />} />
-            <Route path="/patient" element={<PatientDashboard />} />
+            <Route path="/appointments" element={<ProtectedRoute><MyAppointments /></ProtectedRoute>} />
+            <Route path="/booking" element={<ProtectedRoute><Booking /></ProtectedRoute>} />
+            <Route path="/patient" element={<ProtectedRoute allowedRoles={['patient']}><PatientDashboard /></ProtectedRoute>} />
             
-            <Route path="/chat/:id" element={<Chat />} />
-            <Route path="/video/:id" element={<VideoCall />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/medical-records" element={<MedicalRecords />} />
+            <Route path="/chat/:id" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+            <Route path="/video/:id" element={<ProtectedRoute><VideoCall /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/medical-records" element={<ProtectedRoute><MedicalRecords /></ProtectedRoute>} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-cancelled" element={<PaymentCancelled />} />
 
 
 
             {/* Admin routes */}
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/doctors" element={<DoctorApprovals />} />
-            <Route path="/admin/users" element={<UserManagement />} />
-            <Route path="/admin/specialties" element={<Specialties />} />
-            <Route path="/admin/finance" element={<FinancialReports />} />
+            <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/doctors" element={<ProtectedRoute allowedRoles={['admin']}><DoctorApprovals /></ProtectedRoute>} />
+            <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><UserManagement /></ProtectedRoute>} />
+            <Route path="/admin/specialties" element={<ProtectedRoute allowedRoles={['admin']}><Specialties /></ProtectedRoute>} />
+            <Route path="/admin/finance" element={<ProtectedRoute allowedRoles={['admin']}><FinancialReports /></ProtectedRoute>} />
 
             {/* Doctor routes */}
-            <Route path="/doctor" element={<DoctorDashboard />} />
-            <Route path="/doctor/appointments" element={<DoctorAppointments />} />
-            <Route path="/doctor/availability" element={<DoctorAvailability />} />
-            <Route path="/doctor/patients" element={<DoctorPatients />} />
-            <Route path="/doctor/medical-records" element={<DoctorMedicalRecords />} />
-            <Route path="/doctor/profile" element={<DoctorProfilePage />} />
+            <Route path="/doctor" element={<ProtectedRoute allowedRoles={['doctor']}><DoctorDashboard /></ProtectedRoute>} />
+            <Route path="/doctor/appointments" element={<ProtectedRoute allowedRoles={['doctor']}><DoctorAppointments /></ProtectedRoute>} />
+            <Route path="/doctor/availability" element={<ProtectedRoute allowedRoles={['doctor']}><DoctorAvailability /></ProtectedRoute>} />
+            <Route path="/doctor/patients" element={<ProtectedRoute allowedRoles={['doctor']}><DoctorPatients /></ProtectedRoute>} />
+            <Route path="/doctor/medical-records" element={<ProtectedRoute allowedRoles={['doctor']}><DoctorMedicalRecords /></ProtectedRoute>} />
+            <Route path="/doctor/profile" element={<ProtectedRoute allowedRoles={['doctor']}><DoctorProfilePage /></ProtectedRoute>} />
+
+            <Route path="*" element={<NotFoundPage />} />
 
           </Routes>
         </BrowserRouter>
