@@ -21,6 +21,7 @@ const authSlice = createSlice({
       state.user = null;
       state.isAuthenticated = false;
       localStorage.removeItem('teryaq_user');
+      localStorage.removeItem('teryaq_token');
     },
     updateUser: (state, action) => {
       state.user = { ...state.user, ...action.payload };
