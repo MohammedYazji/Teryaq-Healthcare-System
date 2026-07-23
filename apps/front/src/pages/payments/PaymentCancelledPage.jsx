@@ -20,16 +20,12 @@ const PaymentCancelledPage = () => {
           You can try booking again whenever you&apos;re ready, or browse other doctors.
         </Typography>
         <Divider sx={{ mb: 4 }} />
-        <Button variant="contained" onClick={() => navigate('/booking')}
+        <Button variant="contained" onClick={() => navigate('/doctors')}
           sx={{ bgcolor: '#0d9488', '&:hover': { bgcolor: '#0f766e' }, mr: 2 }}>
-          Try Again
-        </Button>
-        <Button variant="outlined" onClick={() => navigate('/doctors')}
-          sx={{ borderColor: '#0d9488', color: '#0d9488', mr: 2 }}>
           Browse Doctors
         </Button>
-        <Button variant="text" onClick={() => navigate('/')}
-          sx={{ color: '#64748b' }}>
+        <Button variant="outlined" onClick={() => navigate('/')}
+          sx={{ borderColor: '#0d9488', color: '#0d9488' }}>
           Go Home
         </Button>
       </Paper>
