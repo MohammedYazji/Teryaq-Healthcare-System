@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Container, Typography, Chip, Button, Skeleton,
+  Box, Container, Typography, Chip, Button, Skeleton, Alert,
   Rating, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress,
 } from '@mui/material';
 import { useSelector } from 'react-redux';
@@ -227,6 +227,7 @@ const AppointmentsPage = () => {
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
   const [reviewedIds, setReviewedIds] = useState(new Set());
   const [reviewDialog, setReviewDialog] = useState(null);
   const [rating, setRating] = useState(5);
@@ -246,6 +247,7 @@ const AppointmentsPage = () => {
         setReviewedIds(new Set(ids));
       } catch (err) {
         console.error('Failed to fetch appointments', err);
+        setFetchError('Failed to load appointments. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -324,6 +326,8 @@ const AppointmentsPage = () => {
               My Appointments
             </Typography>
           </Box>
+
+          {fetchError && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{fetchError}</Alert>}
 
           {loading ? (
             <Box>
