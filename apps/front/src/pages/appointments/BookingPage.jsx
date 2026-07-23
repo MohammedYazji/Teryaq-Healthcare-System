@@ -16,7 +16,7 @@ const nextDayDate = (dayName) => {
   const days = dayNames.map((d) => d.toLowerCase());
   const target = days.indexOf(dayName.toLowerCase());
   if (target === -1) return null;
-  const diff = (target + 7 - now.getDay()) % 7 || 7;
+  const diff = (target + 7 - now.getDay()) % 7;
   const d = new Date(now);
   d.setDate(now.getDate() + diff);
   return d.toISOString().split('T')[0];
@@ -67,7 +67,7 @@ const BookingPage = () => {
   const daySlots = useMemo(() => {
     if (!date) return [];
     const dayOfWeek = dayNames[new Date(date).getDay()].toLowerCase();
-    return allSlots.filter((s) => s.dayOfWeek?.toLowerCase() === dayOfWeek);
+    return allSlots.filter((s) => s.dayOfWeek?.toLowerCase() === dayOfWeek && s.isAvailable && s.status === 'available');
   }, [allSlots, date]);
 
   const handleDayClick = (dayName) => {
