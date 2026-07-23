@@ -178,13 +178,13 @@ const UserManagementPage = () => {
               size="small"
               fullWidth
               sx={{ bgcolor: 'white', ...inputSx }}
-              InputProps={{
+              slotProps={{ input: {
                 startAdornment: (
                   <InputAdornment position="start">
                     <SearchIcon sx={{ fontSize: 19, color: colors.slateLight }} />
                   </InputAdornment>
                 ),
-              }}
+              } }}
             />
             {search && (
               <Button

@@ -179,19 +179,19 @@ export default function DoctorAvailability() {
             <TextField fullWidth label="Start Time" type="time"
               value={form.startTime}
               onChange={e => setForm(f => ({ ...f, startTime: e.target.value }))}
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
             />
             <TextField fullWidth label="End Time" type="time"
               value={form.endTime}
               onChange={e => setForm(f => ({ ...f, endTime: e.target.value }))}
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
             />
             <TextField fullWidth label="Slot Duration (minutes)" type="number"
               value={form.slotDuration}
               onChange={e => setForm(f => ({ ...f, slotDuration: e.target.value }))}
-              inputProps={{ min: 15, max: 120, step: 15 }}
+              slotProps={{ htmlInput: { min: 15, max: 120, step: 15 } }}
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
             />
           </Box>

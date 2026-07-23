@@ -377,7 +377,7 @@ export default function DoctorProfile() {
                     <TextField
                       fullWidth label="Years of Experience" type="number" value={form.experienceYears}
                       onChange={e => setForm(f => ({ ...f, experienceYears: e.target.value }))}
-                      inputProps={{ min: 0 }}
+                      slotProps={{ htmlInput: { min: 0 } }}
                       sx={textFieldSx}
                     />
                   ) : (
@@ -393,7 +393,7 @@ export default function DoctorProfile() {
                     <TextField
                       fullWidth label="Consultation Fee ($)" type="number" value={form.consultationFee}
                       onChange={e => setForm(f => ({ ...f, consultationFee: e.target.value }))}
-                      inputProps={{ min: 0 }}
+                      slotProps={{ htmlInput: { min: 0 } }}
                       sx={textFieldSx}
                     />
                   ) : (

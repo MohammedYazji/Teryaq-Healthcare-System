@@ -84,9 +84,9 @@ export default function DoctorPatients() {
 
         <TextField fullWidth placeholder="Search patients..." value={search}
           onChange={e => setSearch(e.target.value)}
-          InputProps={{
+          slotProps={{ input: {
             startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: '#94A3B8' }} /></InputAdornment>,
-          }}
+          } }}
           sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
         />
 
