@@ -41,6 +41,7 @@ const DoctorSignupPage = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
+  const [specError, setSpecError] = useState('');
 
   useEffect(() => {
     axios.get('/specializations')
@@ -48,7 +49,7 @@ const DoctorSignupPage = () => {
         const specs = res.data?.data?.specializations;
         setSpecializations(Array.isArray(specs) ? specs : []);
       })
-      .catch(() => {});
+      .catch(() => { setSpecError('Failed to load specializations. Please refresh.'); });
   }, []);
 
   const handleChange = (e) => {
@@ -238,7 +239,7 @@ const DoctorSignupPage = () => {
             <TextField
               fullWidth select label="Specialization" name="specialization"
               value={doctorInfo.specialization} onChange={handleDoctorInfoChange} required
-              error={!!errors.specialization} helperText={errors.specialization}
+              error={!!errors.specialization || !!specError} helperText={errors.specialization || specError}
               sx={inputSx}
             >
               <MenuItem value="">
