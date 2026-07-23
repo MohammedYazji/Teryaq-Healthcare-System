@@ -169,9 +169,7 @@ const BookingPage = () => {
                 onChange={(e) => { setDate(e.target.value); setSlotId(''); }}
                 fullWidth
                 required
-                InputLabelProps={{ shrink: true }}
-                slotProps={{ inputLabel: { shrink: true } }}
-                placeholder="YYYY-MM-DD"
+                slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: new Date().toISOString().split('T')[0] } }}
                 sx={{ mb: 2.5 }}
               />
 
