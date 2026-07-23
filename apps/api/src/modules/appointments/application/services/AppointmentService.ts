@@ -15,89 +15,92 @@ export class AppointmentService {
     appointmentDate: string,
     reason?: string,
   ) {
-    // CHECK IF THE SLOT EXISTS
-    const slot = await AvailabilityModel.findById(slotId);
+    // CHECK IF THE REQUESTED DATE MATCHES A VALID DAY BEFORE CLAIMING THE SLOT
+    const requestedDate = new Date(appointmentDate);
+    const dayNames = [
+      "Sunday", "Monday", "Tuesday", "Wednesday",
+      "Thursday", "Friday", "Saturday",
+    ];
+    const requestedDayName = dayNames[requestedDate.getDay()];
 
-    if (!slot) {
-      throw new AppError("The requested time slot does not exist", 404);
-    }
+    // ATOMICALLY CLAIM THE SLOT — only succeeds if it's available or an expired reservation
+    const claimedSlot = await AvailabilityModel.findOneAndUpdate(
+      {
+        _id: slotId,
+        $or: [
+          { isAvailable: true },
+          {
+            status: "reserved",
+            reservedUntil: { $lt: new Date() },
+          },
+        ],
+      },
+      {
+        $set: {
+          isAvailable: false,
+          status: "reserved",
+          reservedUntil: new Date(Date.now() + 15 * 60 * 1000),
+        },
+      },
+      { new: true },
+    );
 
-    // CHECK IF THE SLOT IS STILL AVAILABLE
-    const isActuallyAvailable =
-      slot.isAvailable ||
-      (slot.status === "reserved" &&
-        slot.reservedUntil &&
-        slot.reservedUntil < new Date());
-
-    if (!isActuallyAvailable) {
+    if (!claimedSlot) {
       throw new AppError(
         "This slot has already been booked or reserved by someone else",
         400,
       );
     }
 
-    // CHECK IF THE REQUESTED DATE MATCHES THE SLOT DAY
-    const requestedDate = new Date(appointmentDate);
-    const dayNames = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
-    const requestedDayName = dayNames[requestedDate.getDay()];
-
-    if (requestedDayName.toLowerCase() !== slot.dayOfWeek.toLowerCase()) {
+    if (requestedDayName.toLowerCase() !== claimedSlot.dayOfWeek.toLowerCase()) {
+      // Release the slot since the date is invalid
+      await AvailabilityModel.findByIdAndUpdate(slotId, {
+        isAvailable: true,
+        status: "available",
+        reservedUntil: null,
+      });
       throw new AppError(
-        `This slot is only available on ${slot.dayOfWeek}s. You provided a ${requestedDayName}.`,
+        `This slot is only available on ${claimedSlot.dayOfWeek}s. You provided a ${requestedDayName}.`,
         400,
       );
     }
 
-    // FETCH THE DOCTOR TO GET THE FEE AS SNAPSHOT INSIDE THE APPOINTMENT DOCUMENT
+    // FETCH THE DOCTOR TO GET THE FEE AS SNAPSHOT
     const doctor = await DoctorProfileModel.findOne({
-      _id: slot.doctorId,
+      _id: claimedSlot.doctorId,
     }).populate("userId", "firstName lastName email");
-    if (!doctor) throw new AppError("Doctor not found", 404);
-
-    // IF THE SLOT WAS EXPIRED BUT IS NOW BEING BOOKED BY SOMEONE ELSE
-    // WE SHOULD CANCEL THE OLD PENDING APPOINTMENT TO FREE THE UNIQUE INDEX
-    if (
-      slot.status === "reserved" &&
-      slot.reservedUntil &&
-      slot.reservedUntil < new Date()
-    ) {
-      await AppointmentModel.updateMany(
-        {
-          slotId: slot._id,
-          appointmentDate: requestedDate,
-          status: { $in: ["pending", "pending-payment"] },
-        },
-        {
-          status: "cancelled",
-          cancellationReason: "Reservation expired and slot re-booked",
-        },
-      );
+    if (!doctor) {
+      await AvailabilityModel.findByIdAndUpdate(slotId, {
+        isAvailable: true,
+        status: "available",
+        reservedUntil: null,
+      });
+      throw new AppError("Doctor not found", 404);
     }
 
-    // UPDATE SLOT AVAILABILITY AND CREATE APPOINTMENT
-    slot.isAvailable = false;
-    slot.status = "reserved";
-    slot.reservedUntil = new Date(Date.now() + 15 * 60 * 1000);
-    await slot.save();
+    // CANCEL OLD PENDING APPOINTMENTS FOR THIS SLOT/DATE (expired reservation)
+    await AppointmentModel.updateMany(
+      {
+        slotId: claimedSlot._id,
+        appointmentDate: requestedDate,
+        status: { $in: ["pending", "pending-payment"] },
+      },
+      {
+        status: "cancelled",
+        cancellationReason: "Reservation expired and slot re-booked",
+      },
+    );
 
     try {
       const appointment = await AppointmentModel.create({
         patientId,
-        doctorId: slot.doctorId,
-        slotId: slot._id,
-        appointmentDate: requestedDate, // Passed from request body
-        appointmentTime: slot.startTime, // SNAPSHOT from slot
-        status: "pending", // Waiting for doctor approval
-        reason: reason || "Regular Checkup", // Optional from user input
-        fee: doctor.consultationFee, // SNAPSHOT from doctor profile
+        doctorId: claimedSlot.doctorId,
+        slotId: claimedSlot._id,
+        appointmentDate: requestedDate,
+        appointmentTime: claimedSlot.startTime,
+        status: "pending",
+        reason: reason || "Regular Checkup",
+        fee: doctor.consultationFee,
       });
 
       // 1. Fetch and Populate
@@ -127,10 +130,12 @@ export class AppointmentService {
 
       return appointment;
     } catch (error: any) {
-      // IF THE APPOINTMENT CREATION FAILS, MAKE THE SLOT AVAILABLE AGAIN
-      slot.isAvailable = true;
-      await slot.save();
-
+      // Release the slot if appointment creation fails
+      await AvailabilityModel.findByIdAndUpdate(claimedSlot._id, {
+        isAvailable: true,
+        status: "available",
+        reservedUntil: null,
+      });
       throw new AppError(`Booking failed: ${error.message}`, 500);
     }
   }
