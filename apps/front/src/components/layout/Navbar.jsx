@@ -47,7 +47,7 @@ export default function Navbar() {
     ...(user?.role === 'patient' ? [{ label: 'Dashboard', path: '/patient' }] : []),
     ...(user?.role === 'doctor' ? [{ label: 'Dashboard', path: '/doctor' }] : []),
     ...(user?.role === 'admin' ? [{ label: 'Admin Panel', path: '/admin' }] : []),
-    ...(!user || user?.role === 'patient' ? [{ label: 'My Appointments', path: '/appointments' }] : []),
+    ...(user?.role === 'patient' ? [{ label: 'My Appointments', path: '/appointments' }] : []),
   ];
 
   const handleLogout = () => {
