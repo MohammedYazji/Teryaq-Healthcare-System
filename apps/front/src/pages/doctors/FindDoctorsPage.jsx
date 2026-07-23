@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
@@ -26,12 +26,15 @@ const FindDoctorsPage = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [specializations, setSpecializations] = useState([]);
+  const specsRef = useRef([]);
 
   useEffect(() => {
     axios.get('/specializations')
       .then((res) => {
         const specs = res.data?.data?.specializations;
-        setSpecializations(Array.isArray(specs) ? specs : []);
+        const arr = Array.isArray(specs) ? specs : [];
+        setSpecializations(arr);
+        specsRef.current = arr;
       })
       .catch(() => {});
   }, []);
@@ -62,7 +65,7 @@ const FindDoctorsPage = () => {
       const params = {};
 
       if (q) {
-        const matchedSpec = specializations.find(
+        const matchedSpec = specsRef.current.find(
           (s) => s.name.toLowerCase() === q.trim().toLowerCase()
         );
         if (matchedSpec) {
@@ -82,7 +85,7 @@ const FindDoctorsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [specializations]);
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
