@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 export type AppointmentStatus =
   | "pending" // WAITING THE DOCTOR APPROVAL
+  | "pending-payment" // WAITING FOR PAYMENT
   | "scheduled" // APPROVED & COMMING
   | "in-progress" // ACTIVE SESSION
   | "completed" // DONE
