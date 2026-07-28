@@ -39,8 +39,8 @@ export class AvailabilityService {
 
     // CHECK IF THE DOCTOR ALREADY HAS GENERATED SLOTS FOR THIS DAY TO AVOID CONFLICTS
     const existingSlots = await AvailabilityModel.findOne({
-      doctorId,
-      dayOfWeek,
+      doctorId: doctorId as any,
+      dayOfWeek: dayOfWeek as any,
     });
     if (existingSlots) {
       throw new AppError(

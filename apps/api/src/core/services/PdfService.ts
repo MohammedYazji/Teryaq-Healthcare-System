@@ -22,7 +22,7 @@ export class PdfService {
 
       // Create page and set content
       const page = await browser.newPage();
-      await page.setContent(html as string, { waitUntil: "networkidle0" });
+      await page.setContent(html as string, { waitUntil: "load" });
 
       // Generate the PDF
       const pdfBuffer = await page.pdf({

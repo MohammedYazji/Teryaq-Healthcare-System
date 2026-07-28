@@ -1,6 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import http from "http";
+import path from "path";
 import { config } from "./config/env";
 import { connectDB } from "./config/database";
 import { globalErrorHandler } from "./core/middlewares/errorMiddleware";
@@ -66,10 +67,19 @@ const bootstrap = async () => {
   app.use("/api/v1/payment", paymentRoutes);
   app.use("/api/v1/agora", agoraRoutes);
 
-  // HANDLE UNHANDLED ROUTES
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
-  });
+  // SERVE FRONTEND BUILD IN PRODUCTION
+  if (config.NODE_ENV === "production") {
+    const frontendBuildPath = path.join(__dirname, "..", "..", "..", "front", "dist");
+    app.use(express.static(frontendBuildPath));
+    app.get("*", (req: Request, res: Response) => {
+      res.sendFile(path.join(frontendBuildPath, "index.html"));
+    });
+  } else {
+    // HANDLE UNHANDLED ROUTES
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+    });
+  }
 
   // GLOBAL ERROR HANDLER
   app.use(globalErrorHandler);

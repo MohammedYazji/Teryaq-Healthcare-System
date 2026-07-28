@@ -32,6 +32,7 @@ const AppointmentSchema = new Schema<IAppointmentDocument>(
       type: String,
       enum: [
         "pending",
+        "pending-payment",
         "scheduled",
         "in-progress",
         "completed",
