@@ -1,7 +1,7 @@
 {
-  "name": "api",
+  "name": "@teryaq/api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Teryaq Healthcare API Server",
   "main": "src/server.ts",
   "scripts": {
     "start": "node src/server.ts",

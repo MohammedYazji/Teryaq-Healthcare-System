@@ -1,0 +1,22 @@
+{
+  "name": "teryaq-healthcare",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Teryaq - Comprehensive Telehealth Ecosystem",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:api": "npm run dev -w apps/api",
+    "dev:front": "npm run dev -w apps/front",
+    "build": "npm run build --workspaces --if-present",
+    "build:api": "npm run build -w apps/api",
+    "build:front": "npm run build -w apps/front",
+    "lint": "npm run lint --workspaces --if-present",
+    "start": "npm run start -w apps/api"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

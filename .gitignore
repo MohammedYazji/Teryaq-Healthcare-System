@@ -1,12 +1,14 @@
 # Dependency directories
 node_modules/
-jspm_packages/
 
 # Build outputs
 dist/
 build/
 .next/
 out/
+
+# Monorepo lock file (npm workspaces manages root lock)
+apps/*/package-lock.json
 
 # Environment variables (حساس جداً لمشروع رعاية صحية)
 .env
