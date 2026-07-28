@@ -130,7 +130,7 @@ export default function DoctorMedicalRecords() {
                 const initials = (record.patientId?.userId?.firstName?.[0] || record.patientId?.firstName?.[0] || 'P').toUpperCase();
                 const rxText = record.prescriptions?.[0]?.medicineName || '';
                 return (
-                <Grid item xs={12} key={record._id || i}>
+                <Grid size={12} key={record._id || i}>
                   <Card sx={{ borderRadius: 3, border: '1px solid #F1F5F9' }}>
                     <CardContent sx={{ p: 3 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
@@ -246,17 +246,17 @@ export default function DoctorMedicalRecords() {
               onChange={e => setForm(f => ({ ...f, medicineName: e.target.value }))}
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} />
             <Grid container spacing={1.5}>
-              <Grid item xs={4}>
+              <Grid size={4}>
                 <TextField fullWidth label="Dosage" value={form.dosage} placeholder="e.g. 500mg"
                   onChange={e => setForm(f => ({ ...f, dosage: e.target.value }))}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} />
               </Grid>
-              <Grid item xs={4}>
+              <Grid size={4}>
                 <TextField fullWidth label="Frequency" value={form.frequency} placeholder="e.g. 3x daily"
                   onChange={e => setForm(f => ({ ...f, frequency: e.target.value }))}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} />
               </Grid>
-              <Grid item xs={4}>
+              <Grid size={4}>
                 <TextField fullWidth label="Duration" value={form.duration} placeholder="e.g. 7 days"
                   onChange={e => setForm(f => ({ ...f, duration: e.target.value }))}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} />

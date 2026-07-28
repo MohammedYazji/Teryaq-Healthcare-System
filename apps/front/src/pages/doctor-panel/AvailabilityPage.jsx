@@ -117,7 +117,7 @@ export default function DoctorAvailability() {
         ) : (
           <Grid container spacing={3}>
             {Object.entries(groupedSlots).map(([day, daySlots]) => (
-              <Grid item xs={12} md={6} key={day}>
+              <Grid size={{ xs: 12, md: 6 }} key={day}>
                 <Card sx={{ borderRadius: 3, border: '1px solid #F1F5F9' }}>
                   <CardContent sx={{ p: 3 }}>
                     <Typography sx={{ fontWeight: 700, fontSize: 15, color: '#0F172A', textTransform: 'capitalize', mb: 2 }}>

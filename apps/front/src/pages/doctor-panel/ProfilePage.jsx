@@ -252,7 +252,7 @@ export default function DoctorProfile() {
                     {profile?.specialization?.name || 'Specialist'}
                   </Typography>
 
-                  <Stack direction="row" justifyContent="center" spacing={1} sx={{ mb: 2.5 }}>
+                  <Stack direction="row" spacing={1} sx={{ mb: 2.5, justifyContent: 'center' }}>
                     <Chip
                       icon={<StarIcon sx={{ fontSize: 14 }} />}
                       label={profile?.averageRating?.toFixed(1) || '0.0'}

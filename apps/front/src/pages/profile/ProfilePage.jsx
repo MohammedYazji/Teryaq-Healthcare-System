@@ -73,7 +73,7 @@ const ProfilePage = () => {
 
   if (!isAuthenticated) {
     return (
-      <Box textAlign="center" py={8}>
+      <Box sx={{ textAlign: 'center', py: 8 }}>
         <Typography variant="h5">Please sign in to view your profile</Typography>
       </Box>
     );

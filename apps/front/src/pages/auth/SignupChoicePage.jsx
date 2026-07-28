@@ -22,10 +22,10 @@ const SignupChoicePage = () => {
     >
       <Container maxWidth="sm">
         <Paper sx={{ p: 5, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-          <Typography variant="h4" fontWeight={700} textAlign="center" gutterBottom>
+          <Typography variant="h4" fontWeight={700} gutterBottom sx={{ textAlign: 'center' }}>
             Create Account
           </Typography>
-          <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 4 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 4, textAlign: 'center' }}>
             How would you like to join Teryaq?
           </Typography>
 
@@ -121,7 +121,7 @@ const SignupChoicePage = () => {
             </Box>
           </Box>
 
-          <Typography variant="body2" textAlign="center" sx={{ mt: 3 }}>
+          <Typography variant="body2" sx={{ mt: 3, textAlign: 'center' }}>
             Already have an account?{' '}
             <Typography
               component={Link}

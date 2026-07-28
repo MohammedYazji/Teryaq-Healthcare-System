@@ -39,7 +39,7 @@ const ResetPasswordPage = () => {
     <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f8fafc', py: 4 }}>
       <Container maxWidth="xs">
         <Paper sx={{ p: 4, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-          <Typography variant="h4" fontWeight={700} textAlign="center" gutterBottom>
+          <Typography variant="h4" fontWeight={700} gutterBottom sx={{ textAlign: 'center' }}>
             Reset Password
           </Typography>
           {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}

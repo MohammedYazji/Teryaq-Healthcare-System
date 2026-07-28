@@ -104,7 +104,7 @@ export default function DoctorPatients() {
         ) : (
           <Grid container spacing={2}>
             {patients.map((p) => (
-              <Grid item xs={12} sm={6} md={4} key={p.id}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={p.id}>
                 <Card sx={{
                   borderRadius: 3, border: '1px solid #F1F5F9', cursor: 'pointer',
                   transition: '0.2s', '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 4px 15px rgba(13,148,136,0.10)' },

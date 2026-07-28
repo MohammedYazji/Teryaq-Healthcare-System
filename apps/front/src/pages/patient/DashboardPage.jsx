@@ -257,9 +257,8 @@ export default function DashboardPage() {
                     />
                     <Stack
                       direction="row"
-                      justifyContent="space-between"
                       alignItems="flex-start"
-                      sx={{ position: 'relative', mb: 2.5 }}
+                      sx={{ position: 'relative', mb: 2.5, justifyContent: 'space-between' }}
                     >
                       <Typography variant="overline" sx={{ color: 'rgba(255,255,255,0.85)', fontWeight: 700, letterSpacing: 1 }}>
                         Next appointment
@@ -389,8 +388,7 @@ export default function DashboardPage() {
                         key={apt._id || apt.id}
                         direction="row"
                         alignItems="center"
-                        justifyContent="space-between"
-                        sx={{ pt: 1.5, '&:first-of-type': { pt: 0 } }}
+                        sx={{ pt: 1.5, justifyContent: 'space-between', '&:first-of-type': { pt: 0 } }}
                       >
                         <Stack direction="row" spacing={1.5} alignItems="center" sx={{ minWidth: 0 }}>
                           <Avatar sx={{ width: 36, height: 36, bgcolor: brandLight, color: brand }}>
@@ -491,7 +489,7 @@ export default function DashboardPage() {
                 <Typography variant="caption" sx={{ color: sub, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                   This month
                 </Typography>
-                <Stack direction="row" justifyContent="space-between" sx={{ mt: 1.5 }}>
+                <Stack direction="row" sx={{ mt: 1.5, justifyContent: 'space-between' }}>
                   <Box>
                     <Typography sx={{ fontWeight: 800, color: brand, fontSize: '1.25rem', lineHeight: 1 }}>
                       {completed.length}

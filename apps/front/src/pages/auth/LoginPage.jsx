@@ -52,10 +52,10 @@ const LoginPage = () => {
     >
       <Container maxWidth="xs">
         <Paper sx={{ p: 4, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-          <Typography variant="h4" fontWeight={700} textAlign="center" gutterBottom>
+          <Typography variant="h4" fontWeight={700} gutterBottom sx={{ textAlign: 'center' }}>
             Welcome Back
           </Typography>
-          <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 3 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3, textAlign: 'center' }}>
             Sign in to your account
           </Typography>
 
@@ -82,7 +82,7 @@ const LoginPage = () => {
               required
               sx={{ mb: 1 }}
             />
-            <Box textAlign="right" sx={{ mb: 2 }}>
+            <Box sx={{ mb: 2, textAlign: 'right' }}>
               <MuiLink component={Link} to="/forgot-password" variant="body2" sx={{ color: brandColor }}>
                 Forgot password?
               </MuiLink>
@@ -98,7 +98,7 @@ const LoginPage = () => {
             </Button>
           </Box>
 
-          <Typography variant="body2" textAlign="center" sx={{ mt: 3 }}>
+          <Typography variant="body2" sx={{ mt: 3, textAlign: 'center' }}>
             Don't have an account?{' '}
             <MuiLink component={Link} to="/register" sx={{ color: brandColor, fontWeight: 600 }}>
               Sign Up

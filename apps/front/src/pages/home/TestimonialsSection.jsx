@@ -23,10 +23,10 @@ const TestimonialsSection = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 8 }}>
-      <Typography variant="h4" fontWeight={700} textAlign="center" gutterBottom>
+      <Typography variant="h4" fontWeight={700} gutterBottom sx={{ textAlign: 'center' }}>
         What Our Patients Say
       </Typography>
-      <Typography variant="body1" color="text.secondary" textAlign="center" sx={{ mb: 6 }}>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 6, textAlign: 'center' }}>
         Real feedback from real patients
       </Typography>
       <Box

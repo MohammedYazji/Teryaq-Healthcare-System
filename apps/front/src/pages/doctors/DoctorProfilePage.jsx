@@ -61,13 +61,13 @@ const DoctorProfilePage = () => {
     <Layout>
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Paper sx={{ p: 4, borderRadius: 3 }}>
-          <Grid container spacing={3} alignItems="center">
-            <Grid item xs={12} sm={3} textAlign="center">
+          <Grid container spacing={3} sx={{ alignItems: 'center' }}>
+            <Grid size={{ xs: 12, sm: 3 }} sx={{ textAlign: 'center' }}>
               <Avatar src={doctor.image} sx={{ width: 120, height: 120, mx: 'auto', bgcolor: brandColor }}>
                 {doctor.name?.[0]}
               </Avatar>
             </Grid>
-            <Grid item xs={12} sm={9}>
+            <Grid size={{ xs: 12, sm: 9 }}>
               <Typography variant="h4" fontWeight={700}>{doctor.name}</Typography>
               <Typography variant="h6" color="text.secondary" gutterBottom>
                 {doctor.specialty}

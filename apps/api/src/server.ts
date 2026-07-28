@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import http from "http";
 import path from "path";
+import fs from "fs";
 import { config } from "./config/env";
 import { connectDB } from "./config/database";
 import { globalErrorHandler } from "./core/middlewares/errorMiddleware";
@@ -67,12 +68,18 @@ const bootstrap = async () => {
   app.use("/api/v1/payment", paymentRoutes);
   app.use("/api/v1/agora", agoraRoutes);
 
-  // SERVE FRONTEND BUILD IN PRODUCTION
-  if (config.NODE_ENV === "production") {
-    const frontendBuildPath = path.join(__dirname, "..", "..", "..", "front", "dist");
+  const frontendBuildPath = path.join(__dirname, "..", "..", "front", "dist");
+  const frontendIndexPath = path.join(frontendBuildPath, "index.html");
+
+  // SERVE FRONTEND BUILD WHEN AVAILABLE
+  if (config.NODE_ENV === "production" || fs.existsSync(frontendIndexPath)) {
     app.use(express.static(frontendBuildPath));
-    app.get("*", (req: Request, res: Response) => {
-      res.sendFile(path.join(frontendBuildPath, "index.html"));
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      if (req.originalUrl.startsWith("/api/")) {
+        return next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+      }
+
+      res.sendFile(frontendIndexPath);
     });
   } else {
     // HANDLE UNHANDLED ROUTES

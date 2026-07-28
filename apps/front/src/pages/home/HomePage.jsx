@@ -213,9 +213,9 @@ const HomePage = () => {
         </Box>
 
         {loading ? (
-          <Typography textAlign="center" sx={{ color: colors.slate }}>Loading specialties...</Typography>
+          <Typography sx={{ color: colors.slate, textAlign: 'center' }}>Loading specialties...</Typography>
         ) : specialties.length === 0 ? (
-          <Typography textAlign="center" sx={{ color: colors.slateLight }}>No specialties available yet.</Typography>
+          <Typography sx={{ color: colors.slateLight, textAlign: 'center' }}>No specialties available yet.</Typography>
         ) : (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2.5 }}>
             {specialties.map((spec, i) => {
@@ -275,9 +275,9 @@ const HomePage = () => {
           </Box>
 
           {loading ? (
-            <Typography textAlign="center" sx={{ color: colors.slate }}>Loading doctors...</Typography>
+            <Typography sx={{ color: colors.slate, textAlign: 'center' }}>Loading doctors...</Typography>
           ) : doctors.length === 0 ? (
-            <Typography textAlign="center" sx={{ color: colors.slateLight }}>No doctors available yet.</Typography>
+            <Typography sx={{ color: colors.slateLight, textAlign: 'center' }}>No doctors available yet.</Typography>
           ) : (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 3 }}>
               {doctors.map((doc) => (
@@ -288,7 +288,7 @@ const HomePage = () => {
             </Box>
           )}
 
-          <Box textAlign="center" sx={{ mt: 5 }}>
+          <Box sx={{ mt: 5, textAlign: 'center' }}>
             <Button
               variant="contained"
               endIcon={<ArrowForwardIcon />}

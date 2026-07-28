@@ -46,7 +46,7 @@ const MedicalRecordsPage = () => {
           </Box>
 
           {loading ? (
-            <Box textAlign="center" py={8}><CircularProgress sx={{ color: brandColor }} /></Box>
+            <Box sx={{ textAlign: 'center', py: 8 }}><CircularProgress sx={{ color: brandColor }} /></Box>
           ) : records.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 8, bgcolor: 'white', borderRadius: 4, border: '1px solid #F1F5F9' }}>
               <DescriptionIcon sx={{ fontSize: 48, color: '#CBD5E1', mb: 2 }} />

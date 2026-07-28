@@ -30,10 +30,10 @@ const ForgotPasswordPage = () => {
     <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f8fafc', py: 4 }}>
       <Container maxWidth="xs">
         <Paper sx={{ p: 4, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-          <Typography variant="h4" fontWeight={700} textAlign="center" gutterBottom>
+          <Typography variant="h4" fontWeight={700} gutterBottom sx={{ textAlign: 'center' }}>
             Forgot Password
           </Typography>
-          <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 3 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3, textAlign: 'center' }}>
             Enter your email and we'll send you reset instructions.
           </Typography>
           {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
@@ -44,7 +44,7 @@ const ForgotPasswordPage = () => {
               {loading ? 'Sending...' : 'Send Reset Link'}
             </Button>
           </Box>
-          <Typography variant="body2" textAlign="center" sx={{ mt: 2 }}>
+          <Typography variant="body2" sx={{ mt: 2, textAlign: 'center' }}>
             <Link to="/login" style={{ color: brandColor }}>Back to Sign In</Link>
           </Typography>
         </Paper>

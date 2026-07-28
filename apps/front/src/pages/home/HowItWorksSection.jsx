@@ -9,10 +9,10 @@ const steps = [
 
 const HowItWorksSection = () => (
   <Container maxWidth="lg" sx={{ py: 8 }}>
-    <Typography variant="h4" fontWeight={700} textAlign="center" gutterBottom>
+    <Typography variant="h4" fontWeight={700} gutterBottom sx={{ textAlign: 'center' }}>
       How It Works
     </Typography>
-    <Typography variant="body1" color="text.secondary" textAlign="center" sx={{ mb: 6 }}>
+    <Typography variant="body1" color="text.secondary" sx={{ mb: 6, textAlign: 'center' }}>
       Getting started is easy
     </Typography>
     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4, justifyContent: 'center' }}>

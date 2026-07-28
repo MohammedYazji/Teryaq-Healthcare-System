@@ -223,7 +223,7 @@ export default function DoctorDashboard() {
             <Stack spacing={2}>
               {/* Pending requests */}
               <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3 }, borderRadius: 3, border: `1px solid ${border}` }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                <Stack direction="row" alignItems="center" sx={{ mb: 2, justifyContent: 'space-between' }}>
                   <Typography sx={{ fontWeight: 700, fontSize: 16, color: ink }}>Pending Requests</Typography>
                   <Button
                     size="small"
@@ -287,7 +287,7 @@ export default function DoctorDashboard() {
 
               {/* Today's schedule */}
               <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3 }, borderRadius: 3, border: `1px solid ${border}` }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                <Stack direction="row" alignItems="center" sx={{ mb: 2, justifyContent: 'space-between' }}>
                   <Typography sx={{ fontWeight: 700, fontSize: 16, color: ink }}>Today's Schedule</Typography>
                   <Chip
                     label={`${today.length} ${today.length === 1 ? 'visit' : 'visits'}`}
@@ -398,7 +398,7 @@ export default function DoctorDashboard() {
               {/* Recent reviews — only renders if there are any, same as before */}
               {reviews.length > 0 && (
                 <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3 }, borderRadius: 3, border: `1px solid ${border}` }}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+                  <Stack direction="row" alignItems="center" sx={{ mb: 1.5, justifyContent: 'space-between' }}>
                     <Typography sx={{ fontWeight: 700, fontSize: 16, color: ink }}>Recent Reviews</Typography>
                     <StarIcon sx={{ color: '#F59E0B', fontSize: 20 }} />
                   </Stack>
@@ -436,7 +436,7 @@ export default function DoctorDashboard() {
                 <Typography variant="caption" sx={{ color: sub, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                   Overview
                 </Typography>
-                <Stack direction="row" justifyContent="space-between" sx={{ mt: 1.5 }}>
+                <Stack direction="row" sx={{ mt: 1.5, justifyContent: 'space-between' }}>
                   <Box>
                     <Typography sx={{ fontWeight: 800, color: brand, fontSize: '1.25rem', lineHeight: 1 }}>
                       {completed.length}

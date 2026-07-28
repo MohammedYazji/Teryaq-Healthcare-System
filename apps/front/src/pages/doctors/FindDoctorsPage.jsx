@@ -234,7 +234,7 @@ const FindDoctorsPage = () => {
                 </Typography>
               </Box>
             ) : doctors.length === 0 ? (
-              <Box textAlign="center" py={10}>
+              <Box sx={{ textAlign: 'center', py: 10 }}>
                 <Typography variant="h5" fontWeight={700}>
                   No doctors found
                 </Typography>
@@ -298,15 +298,11 @@ const FindDoctorsPage = () => {
                 <Grid
                   container
                   spacing={{ xs: 3, md: 4 }}
-                  justifyContent="center"
+                  sx={{ justifyContent: 'center' }}
                 >
                   {doctors.map((doc) => (
                     <Grid
-                      item
-                      xs={12}
-                      sm={6}
-                      md={4}
-                      lg={3}
+                      size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
                       key={doc._id}
                     >
                       <Box

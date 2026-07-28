@@ -95,8 +95,8 @@ const DoctorCard = ({ doctor, navigate }) => {
 
         <Stack
           direction="row" spacing={2}
-          justifyContent="center" alignItems="center"
-          sx={{ color: 'text.secondary', mb: 3 }}
+          alignItems="center"
+          sx={{ color: 'text.secondary', mb: 3, justifyContent: 'center' }}
         >
           <Stack direction="row" alignItems="center" spacing={0.5}>
             <LocationOnIcon sx={{ fontSize: 16 }} />

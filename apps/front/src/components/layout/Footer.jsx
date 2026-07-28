@@ -26,8 +26,8 @@ export default function Footer() {
   return (
     <Box component="footer" sx={{ background: '#0F172A', color: 'white', pt: 6, pb: 3, mt: 'auto' }}>
       <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 3, md: 4 } }}>
-        <Grid container justifyContent="space-between" spacing={4} sx={{ mb: 4 }}>
-          <Grid item xs={12} md={4}>
+        <Grid container spacing={4} sx={{ mb: 4, justifyContent: 'space-between' }}>
+          <Grid size={{ xs: 12, md: 4 }}>
 
             <TeryaqLogo />
             
@@ -36,7 +36,7 @@ export default function Footer() {
             </Typography>
           </Grid>
 
-          <Grid item xs={6} md={2.5}>
+          <Grid size={{ xs: 6, md: 2.5 }}>
             <Typography sx={{ color: 'white', fontWeight: 600, mb: 2, fontSize: 15 }}>
               Platform
             </Typography>
@@ -45,7 +45,7 @@ export default function Footer() {
             <Box component={Link} to="/" sx={linkStyle}>Pricing</Box>
           </Grid>
 
-          <Grid item xs={6} md={2.5}>
+          <Grid size={{ xs: 6, md: 2.5 }}>
             <Typography sx={{ color: 'white', fontWeight: 600, mb: 2, fontSize: 15 }}>
               Support
             </Typography>
@@ -54,7 +54,7 @@ export default function Footer() {
             <Box component="a" href="#" sx={linkStyle}>Terms of Service</Box>
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Typography sx={{ color: 'white', fontWeight: 600, mb: 2, fontSize: 15 }}>
               Contact
             </Typography>

@@ -156,10 +156,10 @@ const DoctorSignupPage = () => {
               &larr; Back
             </MuiLink>
           </Typography>
-          <Typography variant="h4" fontWeight={700} textAlign="center" gutterBottom>
+          <Typography variant="h4" fontWeight={700} gutterBottom sx={{ textAlign: 'center' }}>
             Doctor Sign Up
           </Typography>
-          <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 3 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3, textAlign: 'center' }}>
             Join Teryaq as a healthcare professional
           </Typography>
 
@@ -327,7 +327,7 @@ const DoctorSignupPage = () => {
             </Button>
           </Box>
 
-          <Typography variant="body2" textAlign="center" sx={{ mt: 3 }}>
+          <Typography variant="body2" sx={{ mt: 3, textAlign: 'center' }}>
             Already have an account?{' '}
             <MuiLink component={Link} to="/login" sx={{ color: brandColor, fontWeight: 600 }}>
               Sign In

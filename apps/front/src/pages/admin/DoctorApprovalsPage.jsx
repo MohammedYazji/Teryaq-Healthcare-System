@@ -161,7 +161,7 @@ const DoctorApprovalsPage = () => {
           </Box>
 
           {loading ? (
-            <Box textAlign="center" py={8}>
+            <Box sx={{ textAlign: 'center', py: 8 }}>
               <CircularProgress sx={{ color: colors.brand }} />
             </Box>
           ) : doctors.length === 0 ? (
